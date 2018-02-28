@@ -6,64 +6,74 @@ This javascript version 28 February 2018
 
 /*
 constructor with team numbers
-public LiveScore(int team1, int team2) {
+public Livescore(int team1, int team2) {
 	this.numbatters=team1;
 	this.numbowlers=team2;
 	
 }
 */
 
-var LiveScore =function() {
-	var numbatters=0;
-	var batternames = new Array();
-	var batterscores = new Array();
-	var batterwickets = new Array();
-	var batterrunshots = new Array();
-	var batterwides = new Array();
-	var batterdots = new Array();
-	var batternoballs = new Array();
-	var batterbyes = new Array();
-	var batterlegbyes = new Array();
-	var batterBF = new Array();
+var Livescore =function() {
+	this.numbatters=0;
+	//try this with 'this' to see if it can be picked up by other methods
+	this.batterBF  = [0,0,0,0,0,0,0,0,0,0,0];
+	this.batternames  = ["default","default","default","default","default","default","default","default","default","default","default"];
+	this.batterscores = [0,0,0,0,0,0,0,0,0,0,0];
+	this.batterwickets = [0,0,0,0,0,0,0,0,0,0,0];
+	this.batterrunshots = [0,0,0,0,0,0,0,0,0,0,0];
+	this.batterwides  = [0,0,0,0,0,0,0,0,0,0,0];
+	this.batterdots  = [0,0,0,0,0,0,0,0,0,0,0];
+	this.batternoballs = [0,0,0,0,0,0,0,0,0,0,0];
+	this.batterbyes  = [0,0,0,0,0,0,0,0,0,0,0];
+	this.batterlegbyes  = [0,0,0,0,0,0,0,0,0,0,0];
+	
 	//
-	var numbowlers=0;
-	var bowlernames = new Array();
-	var bowlerscores = new Array();
-	var bowlerwickets = new Array();
-	var bowlerwides = new Array();
-	var bowlerdots = new Array();
-	var bowlernoballs = new Array();
-	var bowlerbyes = new Array();
-	var bowlerlegbyes = new Array();
-	var bowlerovers = new Array();
-	var bowlermaidens = new Array();
+	this.numbowlers=0;
+	this.bowlernames  = ["default","default","default","default","default","default","default","default","default","default","default"];
+	this.bowlerscores  = [0,0,0,0,0,0,0,0,0,0,0];
+	this.bowlerwickets  = [0,0,0,0,0,0,0,0,0,0,0];
+	this.bowlerwides  = [0,0,0,0,0,0,0,0,0,0,0];
+	this.bowlerdots  = [0,0,0,0,0,0,0,0,0,0,0];
+	this.bowlernoballs  = [0,0,0,0,0,0,0,0,0,0,0];
+	this.bowlerbyes  = [0,0,0,0,0,0,0,0,0,0,0];
+	this.bowlerlegbyes  = [0,0,0,0,0,0,0,0,0,0,0];
+	this.bowlerovers  = [0,0,0,0,0,0,0,0,0,0,0];
+	this.bowlermaidens  = [0,0,0,0,0,0,0,0,0,0,0];
 	//
-	var maiden = true;
+	this.maiden = true;
 	//
-	var totalruns;
-	var totalsundries;
-	var totalscore;
-	var totalwickets;
-	var totalbyes;
-	var totallegbyes;
-	var totalnb;
-	var totalwides;
-	var totalovers;
+	this.totalruns=0;;
+	this.totalsundries=0;
+	this.totalscore=0;
+	this.totalwickets=0;
+	this.totalbyes=0;
+	this.totallegbyes=0;
+	this.totalnb=0;
+	this.totalwides=0;
+	this.totalovers=0;
+
+	this.getBF = function() {
+		return this.batterBF;
+	}
+
+	this.setBF = function(batter,value) {
+		this.batterBF[batter]=value+this.batterBF[batter];
+	}
 
 }
 
 //setup strings with spaces for column widths
 
-LiveScore.prototype.columnWidth=function(myString,maxWidth) {
+Livescore.prototype.columnWidth=function(myString,maxWidth) {
 	var spacer = "                                    ";
-	while (myString.length()<5) {
+	while (myString.length<5) {
 		myString=myString+" ";
 	}
-	var mod = myString+spacer.substring(0,maxWidth-myString.length());
+	var mod = myString+spacer.substr(0,maxWidth-myString.length);
 	return mod;
 }
 
-LiveScore.prototype.printScores=function(myInnings) {
+Livescore.prototype.printScores=function(myInnings) {
 	var numbatters = myInnings.getBatterNum();
 	var numbowlers = myInnings.getBowlerNum();
 	var teamname = myInnings.getBattingTeamName();
@@ -88,7 +98,7 @@ LiveScore.prototype.printScores=function(myInnings) {
 		}
 		console.log(this.columnWidth("Bowler",20),this.columnWidth("---Bowler Stats---",25));
 		console.log(this.columnWidth("   ",15),this.columnWidth("O",6),this.columnWidth("M",5),this.columnWidth("X",5),this.columnWidth("R",5),this.columnWidth("wd",5),this.columnWidth("nb",5),this.columnWidth("Total",7),this.columnWidth("Econ(R/O)",10));
-	for (var bowlers=1;bowlers<numbowlers+1;bowlers++) {
+		for (var bowlers=1;bowlers<numbowlers+1;bowlers++) {
 		var name = myInnings.getBowlerName(bowlers);
 		var bwlruns = this.bowlerscores[bowlers].toString();
 		var bwlwicks = this.bowlerwickets[bowlers].toString();
@@ -106,34 +116,37 @@ LiveScore.prototype.printScores=function(myInnings) {
 		var bwltotal = bowlertotal.toString();
 		console.log(this.columnWidth(name,15),this.columnWidth(bovers,6),this.columnWidth(bwlmaidens,5),this.columnWidth(bwlwicks,5),this.columnWidth(bwlruns,5),this.columnWidth(widebowl,5),this.columnWidth(bnb,5),this.columnWidth(bwltotal,7),this.columnWidth(becon,10));
 		}
-		updateTotals();
+		this.updateTotals();
 		console.log(linedash);
 		console.log(this.columnWidth("Totals:",15));
-		console.log(this.columnWidth("Overs",15)+this.totalovers);
-		console.log(this.columnWidth("Wickets :",15)+this.totalwickets);
-		console.log(this.columnWidth("Runs",15)+this.totalruns);
+		console.log(this.columnWidth("Overs",15),this.totalovers.toString());
+		console.log(this.columnWidth("Wickets :",15),this.totalwickets.toString());
+		console.log(this.columnWidth("Runs",15),this.totalruns);
 		var sundry= this.totalsundries.toString();
 		var totalscoreStr = this.totalscore.toString();
 		console.log(this.columnWidth("All Sundries :",15),this.columnWidth(sundry,5));
-		console.log(this.columnWidth("--Wides :",20)+this.totalwides);
-		console.log(this.columnWidth("--No balls :",20)+this.totalnb);
-		console.log(this.columnWidth("--Byes :",20)+this.totalbyes);
-		console.log(this.columnWidth("--Leg Byes :",20)+this.totallegbyes);
+		console.log(this.columnWidth("--Wides :",20),this.totalwides.toString());
+		console.log(this.columnWidth("--No balls :",20),this.totalnb.toString());
+		console.log(this.columnWidth("--Byes :",20),this.totalbyes.toString());
+		console.log(this.columnWidth("--Leg Byes :",20),this.totallegbyes.toString());
 		console.log(this.columnWidth("Total Score :",15),this.columnWidth(totalscoreStr,5));
 }
 
-LiveScore.prototype.addbatterNames = function(myNames) {
+Livescore.prototype.addbatterNames=function(myNames) {
 	this.batternames = myNames;
 }
 
-/* This 'adds' integer values.  nb if you want to see a trace of runs then add a String variable and 'add' the String for each run
+/* This 'adds' integer values.  
+nb if you want to see a trace of runs then add a String variable and 'add' the String for each run
 */
 
-LiveScore.prototype.addBF = function(batter,value) {
-	this.batterBF[batter]=this.batterBF[batter]+value;
+Livescore.prototype.addBF = function(batter,value) {
+	//this.batterBF[batter]=value+this.batterBF[batter];
+	//works-->this.setBF(batter,value);
+	this.batterBF[batter]=value+this.batterBF[batter];
 }
 
-LiveScore.prototype.addRuns = function(batter,bowler,runs) {
+Livescore.prototype.addRuns = function(batter,bowler,runs) {
 	this.batterscores[batter]=this.batterscores[batter]+runs;
 	if (runs>0) {
 		this.batterrunshots[batter]++;
@@ -143,13 +156,13 @@ LiveScore.prototype.addRuns = function(batter,bowler,runs) {
 	this.totalruns=this.totalruns+runs;
 }
 
-LiveScore.prototype.addWicket = function(batter,bowler) {
+Livescore.prototype.addWicket = function(batter,bowler) {
 	this.batterwickets[batter]++;
 	this.bowlerwickets[bowler]++;
 	this.totalwickets++;
 }
 
-LiveScore.prototype.addWide = function(batter,bowler,value) {
+Livescore.prototype.addWide = function(batter,bowler,value) {
 	//add just a 'count' to batter wides (dot ball analysis)
 	this.batterwides[batter]=this.batterwides[batter]+1;
 	//add vaue of wide to bowler/total
@@ -158,33 +171,33 @@ LiveScore.prototype.addWide = function(batter,bowler,value) {
 	this.maiden=false;
 }
 
-LiveScore.prototype.addDot = function(batter) {
+Livescore.prototype.addDot = function(batter) {
 	this.batterdots[batter]++;
 }
 
-LiveScore.prototype.addNoBall = function(batter,bowler) {
+Livescore.prototype.addNoBall = function(batter,bowler) {
 	this.batternoballs[batter]++;
 	this.bowlernoballs[bowler]++;
 	this.maiden=false;
 	this.totalnb++;
 }
 
-LiveScore.prototype.addBye = function(batter,value) {
+Livescore.prototype.addBye = function(batter,value) {
 	this.batterbyes[batter]=this.batterbyes[batter]+value;
 	this.totalbyes=this.totalbyes+value;
 }
 
-LiveScore.prototype.addLegBye = function(batter,value) {
+Livescore.prototype.addLegBye = function(batter,value) {
 	this.batterlegbyes[batter]=this.batterlegbyes[batter]+value;
 	this.totallegbyes=this.totallegbyes+value;
 }
 
-LiveScore.prototype.updateTotals = function() {
+Livescore.prototype.updateTotals = function() {
 	this.totalsundries = this.totalwides+this.totalnb+this.totalbyes+this.totallegbyes;
 	this.totalscore = this.totalruns+this.totalsundries;
 }
 
-LiveScore.prototype.updateOvers = function(bowler) {
+Livescore.prototype.updateOvers = function(bowler) {
 	this.bowlerovers[bowler]++;
 	this.totalovers++;
 	if (this.maiden==true) {

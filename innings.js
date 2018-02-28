@@ -30,6 +30,10 @@ If prototyping is not used, then creating a new Innings() will simply clone the 
      var bye=0;
      var legbye=0;
      var noball=0;
+
+     this.getBatsmenGame=function() {
+      return this.batsmen;
+    }
 }
 //=======SETUP========
 
@@ -55,7 +59,7 @@ Innings.prototype.setBowlerNum = function(numBowl) {
 	this.numbowlers = numBowl;
 }
 
-//myArray is 2D array
+//myArray is 2D array - not initialised as it is updated to match this array
 Innings.prototype.setBatsmenGame = function(myArray) {
 	this.batsmen = myArray;
 }
@@ -63,6 +67,10 @@ Innings.prototype.setBatsmenGame = function(myArray) {
 //myArray is 2D array
 Innings.prototype.setBowlersGame = function(myArray) {
 	this.bowlers = myArray;
+}
+
+Innings.prototype.setInningsDate=function(myDate) {
+  this.inningsdate = myDate;
 }
 
 Innings.prototype.printBatInnings=function() {
@@ -117,10 +125,6 @@ Innings.prototype.getInningsDate=function() {
   return this.inningsdate;
 }
 
-Innings.prototype.getBatsmenGame=function() {
-  return this.batsmen;
-}
-
 Innings.prototype.getBowlersGame=function() {
   return this.bowlers;
 }
@@ -134,10 +138,14 @@ Innings.prototype.getBowlersGame=function() {
 
      //function processOutcome(myBall, myScores) {
      	//setBallState(myBall, myScores);
-Innings.prototype.processOutcome = function(myBall) {
+/*Innings.prototype.processOutcome = function(myBall) {
         this.setBallState(myBall);
+        */
+
+Innings.prototype.processOutcome = function(myBall, myScores) {
+this.setBallState(myBall,myScores);
       
-      /* TO DO:
+      /* TO DO: */
       myScores.addBF(this.batternum,1);
      	myScores.addRuns(this.batternum, this.bowlernum, this.runscored);
       if (this.wicket==1) {
@@ -163,7 +171,7 @@ Innings.prototype.processOutcome = function(myBall) {
         //myScores.addLegBye(this.batternum, this.legbye);
         myScores.addLegBye(this.batternum, 1);
       }
-       */
+      
      	return this.printBallState();
       
      }
@@ -172,7 +180,7 @@ Innings.prototype.processOutcome = function(myBall) {
     //when accepting myScores as well:
     //function setBallState(myBall, myScores) {
 
-Innings.prototype.setBallState= function(myBall) {
+Innings.prototype.setBallState= function(myBall, myScores) {
 	     this.batternum = this.getstrikeBatsman(myBall);
 	     if (this.batternum==0) {
 	     	return;
@@ -181,15 +189,13 @@ Innings.prototype.setBallState= function(myBall) {
 	     this.bowlernum = this.getBowler(myBall);
        //when bowler changes, regardless of balls bowled
 
-       /*TO DO:
-
        if (myBall>1 && this.bowlernum!=currentbowler) {
         myScores.updateOvers(currentbowler);
        }
-       if (myBall==this.numballs) { //end of innings
+       if (myBall>=this.maxballs) { //end of innings
         myScores.updateOvers(currentbowler);
        }
-       */
+       
 	     //To do: error checking
 	     //BallState myState = new BallState();
 	     //unpack ball state from current outcome code
@@ -209,12 +215,14 @@ Innings.prototype.setBallState= function(myBall) {
 
 	 /* return batter name for given batsman */
 	 Innings.prototype.getBatterName =function(batterreq) {
+    var batsmen = this.getBatsmenGame();
 	 	return batsmen[batterreq][0];
 
 	 }
 
    /* return batter name for given batsman */
  Innings.prototype.getBowlerName =function(bowlerreq) {
+    var bowlers = this.getBowlersGame();
     return bowlers[bowlerreq][0];
 
    }

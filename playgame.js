@@ -19,8 +19,8 @@ function Counter(elem, delay) {
   var Innings2 = new Innings();
   var maxballs = 120;
   //score objects
-  myScoresheet = new LiveScore();
-  myScoresheet2 = new LiveScore();
+  var myScoresheet = new Livescore();
+  var myScoresheet2 = new Livescore();
 
   
   function increment() {
@@ -31,13 +31,12 @@ function Counter(elem, delay) {
     elem.innerHTML = value;
     document.getElementById('msg').innerHTML = textoutput(value);
     //Innings1.processOutcome(ball, myScoresheet);
-    text = Innings1.processOutcome(value);
+    text = Innings1.processOutcome(value,myScoresheet);
     //value of text changes because it is in an event handler
     if (text!="") {
-      document.getElementById('filemsg').innerHTML=text;
+      document.getElementById('ballbyball').innerHTML=text;
     }
     //match statistics
-
   }
 
   //This is called after every time interval set by the start function.
@@ -50,6 +49,10 @@ function Counter(elem, delay) {
       //clearInterval(run);
       //cleanup by removing event listener
       document.getElementById('fileInput').removeEventListener('change', readFile, false);
+      if (ball==121) {
+        myScoresheet.printScores(Innings1);
+      }
+      //Don't do this until 2nd run.  myScoresheet2.printScores(Innings2); //run from scoresheet 1?
       return;
     }
     else {
@@ -167,6 +170,7 @@ function InningsData(firsttext) {
     Innings1.setBowlingTeam(bowlingteamname);
     Innings1.setBowlerNum(numbowlers);
     Innings1.setBowlersGame(bowlerdata);
+    Innings1.setInningsDate(matchdate);
     //INNINGS 2
     
     var battingLineStart=numbatters+numbowlers+3; //1st innings offset
@@ -198,6 +202,7 @@ function InningsData(firsttext) {
     Innings2.setBowlingTeam(bowlingteam2name);
     Innings2.setBowlerNum(numbowlers2);
     Innings2.setBowlersGame(bowlerdata2);
+    Innings2.setInningsDate(matchdate);
     
 }
 
