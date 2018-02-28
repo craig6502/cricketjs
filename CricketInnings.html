@@ -5,19 +5,24 @@
 <title>Cricket Innings Reader & Animator</title>
 <!-- started 27 Feb 2018 -->
 </head>
+<p>Canvas will appear here:</p>
 <canvas id="canvas" width="500" height="400"></canvas>
 <!-- In HTML5 an input tag asks the user for the files and returns a File object.  
 Alternatively, you can set up an event listener. 
 see https://developer.mozilla.org/en-US/docs/Web/API/File
 https://developer.mozilla.org/en-US/docs/Web/API/FileReader --> 
-<div>Select an Innings file:<input type="file" id="fileInput"></div>
-<label id="txt">1</label>
+<div><p>Select an Innings file:<input type="file" id="fileInput"></p></div>
+<div>
+	<p id="txt">1</p>
 <!-- The id is the important part.  You could embed it with another tag like <p id="txt">1</p> -->
-<label id="msg">Waiting for file selection</label>
-<label id="filemsg">TBA</label>
+<p id="msg">Waiting for file selection</p>
+<p id="filemsg">TBA</p>
+<!-- If script refers to values in HTML tags, put script second -->
 <!--<script src="livescore.js"></script> -->
 <script src="innings.js"></script>
 <script src="playgame.js"></script>
+
+</div>
 <body>
 </body>
 </html>

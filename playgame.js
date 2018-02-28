@@ -15,12 +15,15 @@ function Counter(elem, delay) {
   var reset=false; //primitive boolean not wrapper
   var begincycle=false;
   var ids = ['name','lname','email','password','cpassword','fff'];
-  //batting data
-  var numbatters=0;
-  var batternames = new Array();
-  var battingteamname="batting team default";
+  //match data
+  var matchdate=" ";
+  /*var Innings1 = new Innings(); //don't use new?
+  var Innings2 = new Innings();
+  */
   var Innings1 = new Innings();
-
+  var Innings2 = new Innings();
+  var maxballs = 120;
+  
   function increment() {
   if (value<numballs) {
       return value += 1;
@@ -46,7 +49,6 @@ function Counter(elem, delay) {
   //to stop this just call clearInterval(run);
   function run() {
     updateDisplay(increment());
-    Innings1.printBat();
   }
 
   //the start timer is basically just calling the setInterval method.
@@ -58,10 +60,6 @@ function Counter(elem, delay) {
     } else {
     alert('The File APIs are not fully supported in this browser.');
     }
-    //update the innings data
-    Innings1.setBatTeam(batternames);
-    Innings1.setBowlTeam(battingteamname);
-    Innings1.setBatNum(numbatters);
     // start the function that runs on intervals
     value=0;
     //Alternatively: var value = parseInt(elem.innerHTML, 10);
@@ -90,7 +88,19 @@ function readFile (evt) {
          //simple case: just return all file by text=reader.result;
          var filetext = reader.result; //only update this once in the event handler
          begincycle=true;
-         importBatterData(filetext); //process and extract innings data
+         InningsData(filetext, Innings1);
+         //text="Team: "+bowlingteamname+", Last player: "+bowlernames[numbowlers]+" max balls:"+maxballs.toString();
+         var bowlerdata = Innings1.getBowlersGame();
+         var numbowlers = Innings1.getBowlerNum();
+         ids=bowlerdata[numbowlers]; //just cycle through one player array for now
+         reset = true; //for counter
+         //check inputs
+         Innings1.printBatInnings();
+         Innings1.printBowlInnings();
+         console.log("Now delivering Innings 2 data:");
+         Innings2.printBatInnings(); //<--- this currently has the same definitions as Innings1!
+         Innings2.printBowlInnings(); //
+    //importBatterData(filetext); //process and extract innings data
          if (begincycle=true) {
           startcounter();
          }
@@ -105,26 +115,105 @@ function wait() {
   
 }
 
+//TO DO: just store number of players and set points to read for each innings
+
+function InningsData(firsttext, myInnings) {
+    //local variables - store relevant ones in Innings
+    //batting data
+      var batterdata = new Array(); //array declaration for batters (importBatterData)
+      var numbatters=0;
+      var battingteamname="batting team default";
+      //bowling data
+      var bowlerdata = new Array();
+      var numbowlers=0;
+      var bowlingteamname="bowling team default";
+    //
+    var lines = new Array();
+    lines = firsttext.split('\r'); //my CSV has CR not LF 
+    var rows = lines.length; //this is a count e.g. 7
+    //
+    matchdate = lines[0];
+    // team 1 bat - details
+    var line1 = lines[1];
+    var meta1 = line1.split(',');
+    battingteamname = meta1[0];
+    numbatters = parseInt(meta1[3],10);
+    for (var x=1; x<numbatters+1; x++) {
+      //to do - make sure rows aren't exceeded.
+      batterdata[x] = lines[x+1].split(','); //comma delimiter
+    }
+    maxballs = batterdata[1].length-1;
+    //
+    var line2 = lines[numbatters+2];
+    var meta2 = line2.split(',');
+    bowlingteamname = meta2[0];
+    numbowlers = parseInt(meta2[3],10);
+    var bowlingLineStart = numbatters+2;
+    for (x=1; x<numbowlers+1; x++) {
+      //to do - make sure rows aren't exceeded.
+      bowlerdata[x] = lines[x+bowlingLineStart].split(','); //comma delimiter
+    }
+    
+    //update the innings data
+    myInnings.setBattingTeam(battingteamname);//<---use the prototype functions (all public?)
+    myInnings.setBatterNum(numbatters);
+    myInnings.setBatsmenGame(batterdata);
+    myInnings.setBowlingTeam(bowlingteamname);
+    myInnings.setBowlerNum(numbowlers);
+    myInnings.setBowlersGame(bowlerdata);
+    //INNINGS 2
+    
+    var battingLineStart=numbatters+numbowlers+3; //1st innings offset
+    var line3 = lines[battingLineStart];
+    meta3 = line3.split(',');
+    var battingteam2name = meta3[0];
+    var batterdata2 = new Array();
+    var numbatters2 = parseInt(meta3[3],10);
+    for (x=1; x<numbatters+1; x++) {
+      //to do - make sure rows aren't exceeded.
+      batterdata2[x] = lines[x+battingLineStart].split(','); //comma delimiter
+    }
+    //maxballs = batterdata[1].length-1;
+    //
+    line4 = lines[battingLineStart+numbatters+2];
+    meta4 = line4.split(',');
+    var bowlingteam2name = meta4[0];
+    var numbowlers2 = parseInt(meta4[3],10);
+    var bowlingLineStart = battingLineStart+numbatters+2;
+    var bowlerdata2 = new Array();
+    for (x=1; x<numbowlers+1; x++) {
+      //to do - make sure rows aren't exceeded.
+      bowlerdata2[x] = lines[x+bowlingLineStart].split(','); //comma delimiter
+    }
+    //update the second innings data
+    Innings2.setBattingTeam(battingteam2name);
+    Innings2.setBatterNum(numbatters2);
+    Innings2.setBatsmenGame(batterdata2);
+    Innings2.setBowlingTeam(bowlingteam2name);
+    Innings2.setBowlerNum(numbowlers2);
+    Innings2.setBowlersGame(bowlerdata2);
+    
+}
+
 function importBatterData (firsttext) {
     var lines = new Array();
     lines = firsttext.split('\r'); //my CSV has CR not LF 
     var rows = lines.length; //this is a count e.g. 7
+    
     //split first line
     var matchdata = lines[0].split(',');
     //grab number of players from Innings data
     numbatters = parseInt(matchdata[0],10);
-    var playerdata = new Array(); //array declaration
     for (var x=1; x<numbatters+1; x++) {
       //to do - make sure rows aren't exceeded.
-      playerdata[x] = lines[x].split(','); //comma delimiter
+      batterdata[x] = lines[x].split(','); //comma delimiter
+      batternames[x]=batterdata[x][0]; //first entry is a name
     }
    //ids=['slippery','sauce','yellow'];
-   var maxballs = playerdata[1].length-1;
+   var maxballs = batterdata[1].length-1;
    battingteamname = matchdata[1];
-   var matchdate = matchdata[2];
-   batternames[numbatters]=playerdata[numbatters][0];
    text="Team: "+battingteamname+", Last player: "+batternames[numbatters]+" max balls:"+maxballs.toString();
-   ids=playerdata[numbatters]; //just cycle through one player array for now
+   ids=batterdata[numbatters]; //just cycle through one player array for now
    reset = true; //for counter
 }
 

@@ -1,6 +1,10 @@
-/* javascript version of innings.java */
+/* javascript version of innings.java 
+This uses prototyping so that the instance variables and methods can be treated similar to classes in java 
+If prototyping is not used, then creating a new Innings() will simply clone the function object and values
 
-function Innings() {
+*/
+
+ var Innings = function() {
 	
 	//setup gamestates variables for 120 ball U10 game
 	  var numballs = 120; //need to be varied once over lengths can vary
@@ -9,22 +13,8 @@ function Innings() {
     var battingteamname="default";
     var bowlingteamname="default";
     var inningsdate="";
-    var iMax = 121;
-    var jMax = 11;
     var batsmen = new Array();
-    for (i=0;i<iMax;i++) {
-      batsmen[i]=new Array();
-      for (j=0;j<jMax;j++) {
-       batsmen[i][j]=0;
-       }
-      }
-      var bowlers = new Array();
-      for (i=0;i<iMax;i++) {
-      bowlers[i]=new Array();
-      for (j=0;j<jMax;j++) {
-       batsmen[i][j]=0;
-       }
-      }
+    var bowlers = new Array();
     //for current ball state
 	   var bowlername="";
 	   var battername="";
@@ -38,75 +28,89 @@ function Innings() {
      var bye=0;
      var legbye=0;
      var noball=0;
-
+}
 //=======SETUP========
 
-function setBowlingTeam(myTeam) {
+Innings.prototype.setBowlingTeam = function(myTeam)
+{
 	this.bowlingteamname = myTeam;
 }
 
-function setBattingTeam(myTeam) {
+Innings.prototype.setBattingTeam = function(myTeam) {
 	this.battingteamname = myTeam;
 }
 
-function setBatterNum(numBat) {
+Innings.prototype.setBatterNum = function(numBat) {
 	this.numbatters = numBat;
 }
 
-function setBowlerNum(numBowl) {
+Innings.prototype.setBowlerNum = function(numBowl) {
 	this.numbowlers = numBowl;
 }
 
 //myArray is 2D array
-function setBatsmenGame(myArray) {
+Innings.prototype.setBatsmenGame = function(myArray) {
 	this.batsmen = myArray;
 }
 
 //myArray is 2D array
-function setBowlersGame(myArray) {
+Innings.prototype.setBowlersGame = function(myArray) {
 	this.bowlers = myArray;
 }
 
-function printBatInnings() {
+Innings.prototype.printBatInnings=function() {
 	   //"Team name: "+
-     console.log(bowlingteamname);
+     console.log("Batting team name: ",this.getBattingTeamName());
        //"Team size:"+
-       console.log(numbatters);
-       for (var x=1;x<numbatters+1;x++) {
-        var bname = batsmen[1][0].toString();
-        console.log(Arrays.toString(batsmen[x]));
+     console.log("Number of batters: ",this.getBatterNum());
+     var batterlist = this.getBatsmenGame();
+       for (var x=1;x<this.getBatterNum()+1;x++) {
+        //var bname = batterlist[1][0].toString();
+        console.log(batterlist[x]);
     	}
 	}
 
 //see https://developer.mozilla.org/en-US/docs/Web/API/Console/log
 
-function printBowlInnings() {
+Innings.prototype.printBowlInnings=function() {
   //"Team name: ",
-	   console.log(this.battingteamname);
+	   console.log("Bowling team name: ",this.getBowlingTeamName());
      //"Team size:",
-       console.log(this.numbowlers);
-       for (var x=1;x<numbowlers+1;x++) {
-        var bname = bowlers[1][0].toString();
-        console.log(Arrays.toString(bowlers[x]));
+     console.log("Number of bowlers: ",this.getBowlerNum());
+     var bowlerlist = this.getBowlersGame();
+       for (var x=1;x<this.getBowlerNum()+1;x++) {
+        console.log(bowlerlist[x]);
     	}
 	}
 
 // GETTERS
 
-function getBatterNum() {
+Innings.prototype.getBatterNum=function() {
 	return this.numbatters;
 }
 
-function getBowlerNum() {
+Innings.prototype.getBowlerNum=function() {
 	return this.numbowlers;
 }
 
-function getBattingTeamName() {
+Innings.prototype.getBattingTeamName=function() {
   return this.battingteamname;
 }
 
-function getInningsDate() {
+Innings.prototype.getBowlingTeamName=function() {
+  return this.bowlingteamname;
+}
+
+Innings.prototype.getInningsDate=function() {
   return this.inningsdate;
+}
+
+Innings.prototype.getBatsmenGame=function() {
+  return this.batsmen;
+}
+
+Innings.prototype.getBowlersGame=function() {
+  return this.bowlers;
 }
 
 //====LOADING======
@@ -189,13 +193,13 @@ function getInningsDate() {
 	 }
 
 	 /* return batter name for given batsman */
-	 function getBatterName (batterreq) {
+	 Innings.prototype.getBatterName =function(batterreq) {
 	 	return batsmen[batterreq][0];
 
 	 }
 
    /* return batter name for given batsman */
-   function getBowlerName (bowlerreq) {
+ Innings.prototype.getBowlerName =function(bowlerreq) {
     return bowlers[bowlerreq][0];
 
    }
@@ -205,7 +209,7 @@ function getInningsDate() {
    Runs scored off a 'wicket' e.g. run out in junior cricket are added in same way
 	 */
 
-	 function getRuns(myOutcome) {
+	Innings.prototype.getRuns=function(myOutcome) {
 	 	switch (myOutcome) {
 	 		case "0": return 0;
 	 		//break;
@@ -236,7 +240,7 @@ function getInningsDate() {
    @return 0 if no wicket
    */
 
-   function getWicket(myOutcome) {
+   Innings.prototype.getWicket=function(myOutcome) {
     switch (myOutcome) {
       case "x": return 1;
       case "1x": return 1;
@@ -253,7 +257,7 @@ function getInningsDate() {
    @return 0 if not
    */
 
-   function getNoBall(myOutcome) {
+   Innings.prototype.getNoBall=function(myOutcome) {
     switch (myOutcome) {
       case "n": return 1;
       case "nb": return 1;
@@ -276,7 +280,7 @@ function getInningsDate() {
    @return 0 if no wide
    */
 
-   function getWide(myOutcome) {
+   Innings.prototype.getWide=function(myOutcome) {
     switch (myOutcome) {
       case "w": return 1;
       case "1w": return 1;
@@ -293,7 +297,7 @@ function getInningsDate() {
    @return 0 if no bye
    */
 
-   function getByes(myOutcome) {
+   Innings.prototype.getByes=function(myOutcome) {
     switch (myOutcome) {
       case "b": return 1;
       case "1b": return 1;
@@ -310,7 +314,7 @@ function getInningsDate() {
    @return 0 if no leg byes
    */
 
-   function getLegByes(myOutcome) {
+   Innings.prototype.getLegByes=function(myOutcome) {
     switch (myOutcome) {
       case "lb": return 1;
       case "1lb": return 1;
@@ -327,7 +331,7 @@ function getInningsDate() {
    @return 0 if no wide
    */
 
-   function getDot(myOutcome) {
+   Innings.prototype.getDot=function(myOutcome) {
     switch (myOutcome) {
       case "0": return 1;
       default: return 0;
@@ -338,7 +342,7 @@ function getInningsDate() {
      //TO DO: link to process outcome
      */
 
-     function printBallState() {
+     Innings.prototype.printBallState=function() {
 	     //To do: switch statement
 	     if (this.outcome.includes( "0")!=-1) {
 	     	console.log(this.bowlername+ " to "+this.battername+"  - dot ball : "+this.outcome);
@@ -367,7 +371,7 @@ function getInningsDate() {
 	     }
  	 }
 
-     function getstrikeBatsman(myBall) {
+     Innings.prototype.getstrikeBatsman=function(myBall) {
      	for (var testplyr=1;testplyr<numbatters+1;testplyr++) {
      		if (batsmen[testplyr][myBall]!=="Z") {
      			return testplyr;
@@ -376,7 +380,7 @@ function getInningsDate() {
      	return 0;
      }
 
-     function getBowler(myBall) {
+     Innings.prototype.getBowler=function(myBall) {
      	for (var testplyr=1;testplyr<numbowlers+1;testplyr++) {
      		if (bowlers[testplyr][myBall]!=="Z") {
      			return testplyr;
@@ -384,11 +388,4 @@ function getInningsDate() {
      	}
      	return 0;
      }
-     //functions to enable public calls of above functions
-     this.printBat=printBatInnings();
-     this.setBatTeam = setBatsmenGame();
-     this.setBowlTeam = setBowlingTeam();
-     this.setBatNum = setBatterNum();
-
-
-}
+     //no 'privileged' functions needed when writing a prototype
