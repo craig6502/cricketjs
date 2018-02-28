@@ -1,8 +1,6 @@
 //Inspiration:
 //https://stackoverflow.com/questions/25805589/javascript-timer-to-change-content-of-a-text
 //Started 27 Feb 2018 by Craig Duncan
-//This doesn't use a canvas - it's just an HTML page updater
-//It works by updating the html tag <label id="yourelementname">10</label>
 //The value in between the tags is the innerHTML that is being updated as if a value
 function Counter(elem, delay) {
   //this parses the String, the '10' (option) indicates the numeral system to be used i.e. decimal
@@ -14,29 +12,26 @@ function Counter(elem, delay) {
   var text ="starting value - file msg";
   var reset=false; //primitive boolean not wrapper
   var begincycle=false;
-  var ids = ['name','lname','email','password','cpassword','fff'];
+  var ids = ['test','these','words'];
   //match data
   var matchdate=" ";
-  /*var Innings1 = new Innings(); //don't use new?
-  var Innings2 = new Innings();
-  */
   var Innings1 = new Innings();
   var Innings2 = new Innings();
   var maxballs = 120;
+  //score objects
+  myScoresheet = new LiveScore();
+  myScoresheet2 = new LiveScore();
+
   
   function increment() {
-  if (value<numballs) {
       return value += 1;
-  } 
-  else {
-    //TO DO: finish
-    return value;
-   }
   }
 
   function updateDisplay(value) {
     elem.innerHTML = value;
     document.getElementById('msg').innerHTML = textoutput(value);
+    //Innings1.processOutcome(ball, myScoresheet);
+    text = Innings1.processOutcome(value);
     //value of text changes because it is in an event handler
     if (text!="") {
       document.getElementById('filemsg').innerHTML=text;
@@ -48,7 +43,18 @@ function Counter(elem, delay) {
   //This is called after every time interval set by the start function.
   //to stop this just call clearInterval(run);
   function run() {
-    updateDisplay(increment());
+    var ball=increment();
+    //process outcome as per Java code in Cricket10.java in playgame method
+    //catch increment before it goes over
+    if (ball>120) {
+      //clearInterval(run);
+      //cleanup by removing event listener
+      document.getElementById('fileInput').removeEventListener('change', readFile, false);
+      return;
+    }
+    else {
+      updateDisplay(ball);
+    }
   }
 
   //the start timer is basically just calling the setInterval method.
@@ -60,8 +66,9 @@ function Counter(elem, delay) {
     } else {
     alert('The File APIs are not fully supported in this browser.');
     }
-    // start the function that runs on intervals
+    // set the range of balls to run through the counter
     value=0;
+    this.maxballs=Innings1.getMaxBalls();
     //Alternatively: var value = parseInt(elem.innerHTML, 10);
     interval = window.setInterval(run, delay);
   }
@@ -69,7 +76,7 @@ function Counter(elem, delay) {
   //javascript just accepts any number, type of argumentW!
   function textoutput(ballnum){
     //make ids global now
-    numballs = ids.length;  //this should equal array size
+    //numballs = ids.length;  //this should equal array size
     var output = "default value";
     if (ballnum<numballs) {
       var output = ids[ballnum];
@@ -83,7 +90,7 @@ function readFile (evt) {
        var file = files[0];           
        var reader = new FileReader();
        reader.onload = function(event) {
-        //this sends the event to the std browser output (if you have developer tools)
+        //this sends the event to the developer tools console
          console.log(event.target.result); 
          //simple case: just return all file by text=reader.result;
          var filetext = reader.result; //only update this once in the event handler
@@ -92,22 +99,20 @@ function readFile (evt) {
          //text="Team: "+bowlingteamname+", Last player: "+bowlernames[numbowlers]+" max balls:"+maxballs.toString();
          var bowlerdata = Innings1.getBowlersGame();
          var numbowlers = Innings1.getBowlerNum();
-         ids=bowlerdata[numbowlers]; //just cycle through one player array for now
+         ids=bowlerdata[numbowlers]; //unused
          reset = true; //for counter
-         //check inputs
+         //check inputs at console
          Innings1.printBatInnings();
          Innings1.printBowlInnings();
          console.log("Now delivering Innings 2 data:");
-         Innings2.printBatInnings(); //<--- this currently has the same definitions as Innings1!
-         Innings2.printBowlInnings(); //
-    //importBatterData(filetext); //process and extract innings data
-         if (begincycle=true) {
+         Innings2.printBatInnings(); 
+         Innings2.printBowlInnings(); 
+         if (begincycle==true) {
           startcounter();
          }
        }
        //this must be outside the 'onload' function
-       reader.readAsText(file); //to run the method <---callback function
-       
+       reader.readAsText(file); // <---callback function
     }
 
 //currently not used but available as a private startup function
@@ -117,7 +122,7 @@ function wait() {
 
 //TO DO: just store number of players and set points to read for each innings
 
-function InningsData(firsttext, myInnings) {
+function InningsData(firsttext) {
     //local variables - store relevant ones in Innings
     //batting data
       var batterdata = new Array(); //array declaration for batters (importBatterData)
@@ -155,12 +160,13 @@ function InningsData(firsttext, myInnings) {
     }
     
     //update the innings data
-    myInnings.setBattingTeam(battingteamname);//<---use the prototype functions (all public?)
-    myInnings.setBatterNum(numbatters);
-    myInnings.setBatsmenGame(batterdata);
-    myInnings.setBowlingTeam(bowlingteamname);
-    myInnings.setBowlerNum(numbowlers);
-    myInnings.setBowlersGame(bowlerdata);
+    Innings1.setMaxBalls(maxballs);
+    Innings1.setBattingTeam(battingteamname);//<---use the prototype functions
+    Innings1.setBatterNum(numbatters);
+    Innings1.setBatsmenGame(batterdata);
+    Innings1.setBowlingTeam(bowlingteamname);
+    Innings1.setBowlerNum(numbowlers);
+    Innings1.setBowlersGame(bowlerdata);
     //INNINGS 2
     
     var battingLineStart=numbatters+numbowlers+3; //1st innings offset
@@ -209,11 +215,10 @@ function importBatterData (firsttext) {
       batterdata[x] = lines[x].split(','); //comma delimiter
       batternames[x]=batterdata[x][0]; //first entry is a name
     }
-   //ids=['slippery','sauce','yellow'];
    var maxballs = batterdata[1].length-1;
    battingteamname = matchdata[1];
    text="Team: "+battingteamname+", Last player: "+batternames[numbatters]+" max balls:"+maxballs.toString();
-   ids=batterdata[numbatters]; //just cycle through one player array for now
+   //ids=batterdata[numbatters]; //just cycle through one player array for now
    reset = true; //for counter
 }
 
@@ -226,6 +231,7 @@ function importBatterData (firsttext) {
   document.getElementById('fileInput').addEventListener('change', readFile, false);
   //This is to create a function that can be called publically, to start other private function if needed
   this.start = wait;
+
 }
 
 
@@ -242,7 +248,7 @@ var elem = document.getElementById("txt");
 // create counter with element and delay of 500ms
 //var counter = new Counter(elem, 500);
 //The constructor will create the event listener, so all is running...
-var counter = new Counter(elem, 1000);
+var counter = new Counter(elem, 20);
 
 // only if you want to start the counter without the program controlling it.
 //counter.start();

@@ -15,6 +15,8 @@ If prototyping is not used, then creating a new Innings() will simply clone the 
     var inningsdate="";
     var batsmen = new Array();
     var bowlers = new Array();
+    //innings max balls
+    var maxballs = 0;
     //for current ball state
 	   var bowlername="";
 	   var battername="";
@@ -30,6 +32,11 @@ If prototyping is not used, then creating a new Innings() will simply clone the 
      var noball=0;
 }
 //=======SETUP========
+
+Innings.prototype.setMaxBalls = function(myBalls)
+{
+  this.maxballs = myBalls;
+}
 
 Innings.prototype.setBowlingTeam = function(myTeam)
 {
@@ -85,6 +92,11 @@ Innings.prototype.printBowlInnings=function() {
 
 // GETTERS
 
+Innings.prototype.getMaxBalls = function()
+{
+  return this.maxballs;
+}
+
 Innings.prototype.getBatterNum=function() {
 	return this.numbatters;
 }
@@ -122,8 +134,8 @@ Innings.prototype.getBowlersGame=function() {
 
      //function processOutcome(myBall, myScores) {
      	//setBallState(myBall, myScores);
-      function processOutcome(myBall) {
-        setBallState(myBall);
+Innings.prototype.processOutcome = function(myBall) {
+        this.setBallState(myBall);
       
       /* TO DO:
       myScores.addBF(this.batternum,1);
@@ -151,21 +163,22 @@ Innings.prototype.getBowlersGame=function() {
         //myScores.addLegBye(this.batternum, this.legbye);
         myScores.addLegBye(this.batternum, 1);
       }
-     	printBallState();
        */
+     	return this.printBallState();
+      
      }
     
 
     //when accepting myScores as well:
     //function setBallState(myBall, myScores) {
 
-     function setBallState(myBall) {
-	     this.batternum = getstrikeBatsman(myBall);
+Innings.prototype.setBallState= function(myBall) {
+	     this.batternum = this.getstrikeBatsman(myBall);
 	     if (this.batternum==0) {
 	     	return;
 	     }
        var currentbowler = this.bowlernum;
-	     this.bowlernum = getBowler(myBall);
+	     this.bowlernum = this.getBowler(myBall);
        //when bowler changes, regardless of balls bowled
 
        /*TO DO:
@@ -180,14 +193,16 @@ Innings.prototype.getBowlersGame=function() {
 	     //To do: error checking
 	     //BallState myState = new BallState();
 	     //unpack ball state from current outcome code
-	     this.outcome = batsmen[this.batternum][myBall];
-	     this.runscored = getRuns(outcome); 
-       this.wicket = getWicket(outcome);
-       this.wide = getWide(outcome);
-       this.dot = getDot(outcome);
-       this.bye = getByes(outcome);
-       this.legbye = getLegByes(outcome);
-       this.noball = getNoBall(outcome);
+	     var batsmen = this.getBatsmenGame();
+       var bowlers = this.getBowlersGame();
+       this.outcome = batsmen[this.batternum][myBall];
+	     this.runscored = this.getRuns(this.outcome); 
+       this.wicket = this.getWicket(this.outcome);
+       this.wide = this.getWide(this.outcome);
+       this.dot = this.getDot(this.outcome);
+       this.bye = this.getByes(this.outcome);
+       this.legbye = this.getLegByes(this.outcome);
+       this.noball = this.getNoBall(this.outcome);
 	     this.battername = batsmen[this.batternum][0];
 	     this.bowlername = bowlers[this.bowlernum][0];
 	 }
@@ -340,17 +355,20 @@ Innings.prototype.getBowlersGame=function() {
 
      /* print ball result 
      //TO DO: link to process outcome
+     //TO DO: send to screen not just console
      */
 
      Innings.prototype.printBallState=function() {
 	     //To do: switch statement
-	     if (this.outcome.includes( "0")!=-1) {
-	     	console.log(this.bowlername+ " to "+this.battername+"  - dot ball : "+this.outcome);
-	     	return;
+	     if (this.outcome.includes("0")==true) {
+        var progress = this.bowlername+ " to "+this.battername+"  - dot ball : "+this.outcome;
+	     	console.log(progress);
+	     	return progress;
 	     }
-	     if (this.outcome.includes( "w")!=-1) {
-	     	console.log(this.bowlername+ " to "+this.battername+"  - wide(s) : "+this.outcome);
-	     	return;
+	     if (this.outcome.includes("w")==true) {
+        var progress = this.bowlername+ " to "+this.battername+"  - wide(s) : "+this.outcome;
+	     	console.log(progress);
+        return progress;
 	     }
        /*
        if (this.wide==1) {
@@ -358,21 +376,34 @@ Innings.prototype.getBowlersGame=function() {
         return;
        }
        */
-	     if (this.outcome.includes("b")==true) {
-	     	console.log(this.bowlername+ " to "+this.battername+"  - sundries : "+this.outcome);
-	     	return;
+	     if (this.outcome.includes("n")==true) {
+        var progress = this.bowlername+ " to "+this.battername+"  - sundries : "+this.outcome;
+        console.log(progress);
+        return progress;
+       }
+
+       if (this.outcome.includes("b")==true) {
+        var progress = this.bowlername+ " to "+this.battername+"  - sundries : "+this.outcome;
+	     	console.log(progress);
+        return progress;
 	     }
 
 	     if (this.outcome.includes("x")==false) {
-	     	console.log(this.bowlername+ " to "+this.battername+" hit "+this.outcome);
+        var progress = this.bowlername+ " to "+this.battername+" hit "+this.outcome;
+	     	console.log(progress);
+        return progress;
 	     }
 	     else {
-	     	console.log(this.bowlername+ " to "+this.battername+" Out: "+this.outcome);
+        var progress=this.bowlername+ " to "+this.battername+" Out: "+this.outcome;
+	     	console.log(progress);
+        return progress;
 	     }
  	 }
 
+    //option - swap out the function call for reference to batters array
      Innings.prototype.getstrikeBatsman=function(myBall) {
-     	for (var testplyr=1;testplyr<numbatters+1;testplyr++) {
+     	 var batsmen = this.getBatsmenGame();
+       for (var testplyr=1;testplyr<this.getBatterNum()+1;testplyr++) {  
      		if (batsmen[testplyr][myBall]!=="Z") {
      			return testplyr;
      		}
@@ -380,12 +411,13 @@ Innings.prototype.getBowlersGame=function() {
      	return 0;
      }
 
+     //option - swap out the function call for reference to bowlers array
      Innings.prototype.getBowler=function(myBall) {
-     	for (var testplyr=1;testplyr<numbowlers+1;testplyr++) {
-     		if (bowlers[testplyr][myBall]!=="Z") {
+      var bowlers = this.getBowlersGame();
+     	for (var testplyr=1;testplyr<this.getBowlerNum()+1;testplyr++) {
+        if (bowlers[testplyr][myBall]!=="Z") {
      			return testplyr;
      		}
      	}
      	return 0;
      }
-     //no 'privileged' functions needed when writing a prototype
