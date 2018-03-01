@@ -31,11 +31,20 @@ function Results() {
     leftKey = false,
     upKey = false,
     downKey = false,
+    //base position srX was 10 but now 0
     sprite_x = (canv_width / 2) - 25, sprite_y = canv_height - 85, sprite_w = 65, sprite_h = 85,
-    srcX = 10, srcY = 0;
+    srcX = 220, srcY = 0;
+    //some useful sprite arrays
+    //var runright=[0,85,155,225];
+    var runright=[0,70,140,210,280,350,420,490];
+    var stand = 0;
+    //var runleft=[10,95,155,225,295,370];
+    var runleft=[560,630,700,770,840,910,980,1050];
+    var frame=0;
     //set some default conditions
     var canv_ballcount=1;
     var canv_innings=1;
+    
 
   
   function increment() {
@@ -286,8 +295,10 @@ function startcanvas() {
   ctx = canvas.getContext('2d');
   sprites = new Image();
   //sprites.src = 'sprites2.png';
-  sprites.src = 'cricketer.png';
-  setInterval(loop, 1000/30);
+  sprites.src = 'cricketer8.png';
+  //setInterval(running, 1000/1000);
+  setInterval(loop, 1000/30); //delay was 1000/30 so 33 ms = 30 Hz
+  //setInterval(render, 1000/60); //50 Hz
   document.addEventListener('keydown', keyDown, false);
   document.addEventListener('keyup', keyUp, false);
 }
@@ -295,40 +306,61 @@ function startcanvas() {
 function clearCanvas() {
   ctx.clearRect(0,0,canv_width,canv_height);
 }
+
+//TO DO: function to make batters run input number of runs (0=do nothing)
+//sprites for bowler, 2 x batsmen, wickets etc (tiles to make picture?)
+function drawRunning() {
+
+}
+
 //if the right key is pressed it changes the sprite image by 83 pixels
+
 function drawSprite() {
+  var stride=15;
   if (rightKey) {
     canv_ballcount++;
     if (canv_ballcount>Innings1.getMaxBalls()) {
       canv_ballcount=Innings1.getMaxBalls();
     }
-    sprite_x += 5;
+    running();
+    sprite_x += stride;
     if (sprite_x>canv_width-50) {
       sprite_x=canv_width-50;
     }
-    /*move sprite
-    sprite_x += 5;
-    srcX = 83;
-    */
+    //change image position in sprite sheet
+    //srcX = 83;
+    srcX=runright[frame];
+    
   } else if (leftKey) {
+    
     canv_ballcount--;
     if (canv_ballcount<1) {
-      canv_ballcount=1;
-    }
-      sprite_x -= 5;
-      if (sprite_x<0) {
+          canv_ballcount=1;
+      }
+    running();
+    sprite_x -= stride;
+    if (sprite_x<0) {
         sprite_x=0;
       }
-      srcX = 156; 
+      //change image position in sprite sheet proportionate to runv
+      //srcX = 156; 
+      //srcX=runleft[offset];
+      //srcX=runleft[frame];
+      srcX=runleft[frame];
     }
     document.getElementById('ball_in_frame').innerHTML = canv_ballcount;
     var canv_out_text=Innings1.getOutcomeText(canv_ballcount);
     document.getElementById('outcome_in_frame').innerHTML = canv_out_text; 
-    //changes sprite image by 156 pixels
-  ctx.drawImage(sprites,srcX,srcY,sprite_w,sprite_h,sprite_x,sprite_y,sprite_w,sprite_h);
-  //change the conditions for animation from key press to ballcount.
-  if (rightKey == false || leftKey == false) {
-    srcX = 10;
+    
+    //draw here cf render separate
+    ctx.drawImage(sprites,srcX,srcY,sprite_w,sprite_h,sprite_x,sprite_y,sprite_w,sprite_h);
+    //the default image position when nothing is pressed.  Not needed for now but could be for pause
+  
+  //this was OR??
+  if (rightKey == false && leftKey == false) {
+    //srcX = 10;
+    //srcX=stand;
+    //clearInterval(running);
   }
 }
 
@@ -341,8 +373,22 @@ function writeComments() {
     document.getElementById('xpos').innerHTML = sprite_x;
 }
 
-//main animation loop
+//animation loop
+//don't draw with this: just grab the frame when you need it?
 
+function running() {
+   frame++;
+   if (frame==8) {
+    frame=0;
+   }
+   document.getElementById('anim_frame').innerHTML = frame;
+}
+
+function render() {
+  ctx.drawImage(sprites,srcX,srcY,sprite_w,sprite_h,sprite_x,sprite_y,sprite_w,sprite_h);
+}
+
+//keycheck loop
 function loop() {
   clearCanvas();
   writeComments();
