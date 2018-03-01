@@ -179,7 +179,7 @@ function InningsData(firsttext) {
     var battingteam2name = meta3[0];
     var batterdata2 = new Array();
     var numbatters2 = parseInt(meta3[3],10);
-    for (x=1; x<numbatters+1; x++) {
+    for (x=1; x<numbatters2+1; x++) {
       //to do - make sure rows aren't exceeded.
       batterdata2[x] = lines[x+battingLineStart].split(','); //comma delimiter
     }

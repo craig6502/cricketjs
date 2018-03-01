@@ -188,6 +188,7 @@ Innings.prototype.setBallState= function(myBall, myScores) {
        var currentbowler = this.bowlernum;
 	     this.bowlernum = this.getBowler(myBall);
        //when bowler changes, regardless of balls bowled
+       //TO DO: record as first ball of new over in ball state
 
        if (myBall>1 && this.bowlernum!=currentbowler) {
         myScores.updateOvers(currentbowler);
