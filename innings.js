@@ -129,6 +129,24 @@ Innings.prototype.getBowlersGame=function() {
   return this.bowlers;
 }
 
+Innings.prototype.getBatterName=function(myBatter) {
+  return batsmen[myBatter][0];
+}
+
+Innings.prototype.getBowlerName=function(myBowler) {
+  return batsmen[myBowler][0];
+}
+
+Innings.prototype.getOutcomeText=function(myBall) {
+  var bwl_num=this.getBowler(myBall);
+  var bat_num=this.getstrikeBatsman(myBall);
+  var canv_bwl_name=this.getBowlerName(bwl_num);
+  var canv_bat_name=this.getBatterName(bat_num);
+  var output = canv_bwl_name+" bowls to "+canv_bat_name;
+  var output = output +","+this.getBallResult(myBall,bat_num);
+  return output;
+}
+
 //====LOADING======
 	
 //1) batsmen
@@ -179,6 +197,11 @@ this.setBallState(myBall,myScores);
 
     //when accepting myScores as well:
     //function setBallState(myBall, myScores) {
+
+Innings.prototype.getBallOutcome=function(myBall) {
+  var myText = this.getBatterName(myBall)+" facing "+this.getBowlerName(myBall);
+  return myText;
+}
 
 Innings.prototype.setBallState= function(myBall, myScores) {
 	     this.batternum = this.getstrikeBatsman(myBall);
@@ -361,6 +384,43 @@ Innings.prototype.setBallState= function(myBall, myScores) {
       default: return 0;
     }
    }
+
+    //short description of outcome for display
+    Innings.prototype.getBallResult=function(myBall,myBatter) {
+        var balloutcome = this.batsmen[myBatter][myBall];
+       //To do: switch statement
+       if (balloutcome.includes("0")==true) {
+        var progress = "dot ball : "+balloutcome;
+        return progress;
+       }
+       if (balloutcome.includes("w")==true) {
+        var progress = "wide(s) : "+balloutcome;
+        return progress;
+       }
+       if (balloutcome.includes("n")==true) {
+        var progress = "sundries : "+balloutcome;
+        return progress;
+       }
+
+       if (balloutcome.includes("b")==true) {
+        var progress = "sundries : "+balloutcome;
+        return progress;
+       }
+
+       if (balloutcome.includes("x")==false) {
+        var progress = " hit "+balloutcome;
+        return progress;
+       }
+       if (balloutcome.includes("x")==true) {
+        var progress = " Out "+balloutcome;
+        return progress;
+       }
+       else {
+        var progress="Unknown outcome: "+balloutcome;
+        return progress;
+       }
+   }
+
 
      /* print ball result 
      //TO DO: link to process outcome

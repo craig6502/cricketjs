@@ -23,6 +23,19 @@ function Results() {
   //score objects
   var myScoresheet = new Livescore();
   var myScoresheet2 = new Livescore();
+  //canvas variables
+  var canvas, ctx, sprites,
+    width = 500,
+    height = 400,
+    rightKey = false,
+    leftKey = false,
+    upKey = false,
+    downKey = false,
+    sprite_x = (width / 2) - 25, sprite_y = height - 85, sprite_w = 65, sprite_h = 85,
+    srcX = 10, srcY = 0;
+    //set some default conditions
+    var canv_ballcount=0;
+    var canv_innings=1;
 
   
   function increment() {
@@ -52,6 +65,7 @@ function Results() {
   //This is called after every time interval set by the start function.
   //to stop this just call clearInterval(run);
   function run() {
+    startcanvas();
     var matchball=0; 
     var innings=1
     var maxballs=Innings1.getMaxBalls();
@@ -145,6 +159,8 @@ function readFile (evt) {
        }
        //this must be outside the 'onload' function
        reader.readAsText(file); // <---callback function
+       //better start point?
+
     }
 
 //currently not used but available as a private startup function
@@ -265,23 +281,65 @@ function importBatterData (firsttext) {
   //This is to create a function that can be called publically, to start other private function if needed
   this.start = wait;
 
+function startcanvas() {
+  canvas = document.getElementById('canvas');
+  ctx = canvas.getContext('2d');
+  sprites = new Image();
+  //sprites.src = 'sprites2.png';
+  sprites.src = 'cricketer.png';
+  setInterval(loop, 1000/30);
+  document.addEventListener('keydown', keyDown, false);
+  document.addEventListener('keyup', keyUp, false);
 }
 
+function clearCanvas() {
+  ctx.clearRect(0,0,500,400);
+}
+//if the right key is pressed it changes the sprite image by 83 pixels
+function drawSprite() {
+  if (rightKey) {
+    if (canv_ballcount<Innings1.getMaxBalls()) {
+      canv_ballcount++;
+    }
+    document.getElementById('ball_in_frame').innerHTML = canv_ballcount;
+    var canv_out_text=Innings1.getOutcomeText(canv_ballcount);
+    document.getElementById('outcome_in_frame').innerHTML = canv_out_text;
+    sprite_x += 5;
+    /*move sprite
+    sprite_x += 5;
+    srcX = 83;
+    */
+  } else if (leftKey) {
+    if (canv_ballcount>1) {
+      canv_ballcount--;
+    }
+    document.getElementById('ball_in_frame').innerHTML = canv_ballcount;
+    var canv_out_text=Innings1.getOutcomeText(canv_ballcount);
+    document.getElementById('outcome_in_frame').innerHTML = canv_out_text;
+    sprite_x -= 5;
+    //changes sprite image by 156 pixels
+    srcX = 156; 
+  }
+  ctx.drawImage(sprites,srcX,srcY,sprite_w,sprite_h,sprite_x,sprite_y,sprite_w,sprite_h);
+  //change the conditions for animation from key press to ballcount.
+  if (rightKey == false || leftKey == false) {
+    srcX = 10;
+  }
+}
+function loop() {
+  clearCanvas();
+  drawSprite();
+}
+function keyDown(e) {
+  if (e.keyCode == 39) rightKey = true;
+  else if (e.keyCode == 37) leftKey = true;
+}
+function keyUp(e) {
+  if (e.keyCode == 39) rightKey = false;
+  else if (e.keyCode == 37) leftKey = false;
+}
 
+}
 
-// get element
-
-//this reads the value of the ext from an event listener
-//make sure the <input> is named id='file'
-// <input id="fileInput" type="file">
-
-   
-
-
-// create counter with element and delay of 500ms
-//var counter = new Counter(elem, 500);
-//The constructor will create the event listener, so all is running...
+//produce results.  Canvas functions inside.
 var match = new Results();
-
-// only if you want to start the counter without the program controlling it.
-//counter.start();
