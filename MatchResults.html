@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Junior Cricket Match Results</title>
+<!-- started 27 Feb 2018 -->
+</head>
+<style>
+body {
+  margin:0;
+  padding:0;
+}
+canvas {
+  display:block;
+  margin:20px auto 0;
+  border:1px dashed #ccc;
+}
+</style>
+<body>
+<div align="center"><p>Junior Cricket Match results reader</p>
+<p>(c) 2018 Craig Duncan</p>
+</div>
+<div class="canvas" align="center">
+	<table>
+<td>
+<canvas id="canvas" width="500" height="400"></canvas></div></td></tr>
+</table>
+</div>
+<div align="center">
+	<p>Select an Innings file:<input type="file" id="fileInput"></p>
+</div>
+<div align="center">
+	<p id="txt">1</p>
+<!-- The id is the important part.  You could embed it with another tag like <p id="txt">1</p> -->
+<p id="msg">Waiting for file selection</p>
+<p id="ballbyball">--no commentary yet--</p>
+<p id = "hdr_inn1"></p>
+<textarea id="comments_inn1" cols="40" rows="12" style="overflow"></textarea>
+<p></p>
+<table id="batters_inn1"></table>
+<p></p>
+<table id="bowlers_inn1"></table>
+<p></p>
+<table id="totals_inn1"></table>
+<p></p>
+</div>
+<!---Second innings -->
+<div align="center">
+<p id = "hdr_inn2"></p>
+<textarea id="comments_inn2" cols="40" rows="12" style="overflow"></textarea>
+<p></p>
+<table id="batters_inn2"></table>
+<p></p>
+<table id="bowlers_inn2"></table>
+<p></p>
+<!---Totals -->
+<table id="totals_inn2"></table>
+<p></p>
+</div>
+<!-- If script refers to values in HTML tags, put script second -->
+<script src="livescore.js"></script> 
+<script src="innings.js"></script>
+<script src="matchresults.js"></script>
+</body>
+</html>
