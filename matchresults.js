@@ -25,16 +25,16 @@ function Results() {
   var myScoresheet2 = new Livescore();
   //canvas variables
   var canvas, ctx, sprites,
-    width = 500,
-    height = 400,
+    canv_width = 600,
+    canv_height = 150,
     rightKey = false,
     leftKey = false,
     upKey = false,
     downKey = false,
-    sprite_x = (width / 2) - 25, sprite_y = height - 85, sprite_w = 65, sprite_h = 85,
+    sprite_x = (canv_width / 2) - 25, sprite_y = canv_height - 85, sprite_w = 65, sprite_h = 85,
     srcX = 10, srcY = 0;
     //set some default conditions
-    var canv_ballcount=0;
+    var canv_ballcount=1;
     var canv_innings=1;
 
   
@@ -293,41 +293,59 @@ function startcanvas() {
 }
 
 function clearCanvas() {
-  ctx.clearRect(0,0,500,400);
+  ctx.clearRect(0,0,canv_width,canv_height);
 }
 //if the right key is pressed it changes the sprite image by 83 pixels
 function drawSprite() {
   if (rightKey) {
-    if (canv_ballcount<Innings1.getMaxBalls()) {
-      canv_ballcount++;
+    canv_ballcount++;
+    if (canv_ballcount>Innings1.getMaxBalls()) {
+      canv_ballcount=Innings1.getMaxBalls();
     }
-    document.getElementById('ball_in_frame').innerHTML = canv_ballcount;
-    var canv_out_text=Innings1.getOutcomeText(canv_ballcount);
-    document.getElementById('outcome_in_frame').innerHTML = canv_out_text;
     sprite_x += 5;
+    if (sprite_x>canv_width-50) {
+      sprite_x=canv_width-50;
+    }
     /*move sprite
     sprite_x += 5;
     srcX = 83;
     */
   } else if (leftKey) {
-    if (canv_ballcount>1) {
-      canv_ballcount--;
+    canv_ballcount--;
+    if (canv_ballcount<1) {
+      canv_ballcount=1;
+    }
+      sprite_x -= 5;
+      if (sprite_x<0) {
+        sprite_x=0;
+      }
+      srcX = 156; 
     }
     document.getElementById('ball_in_frame').innerHTML = canv_ballcount;
     var canv_out_text=Innings1.getOutcomeText(canv_ballcount);
-    document.getElementById('outcome_in_frame').innerHTML = canv_out_text;
-    sprite_x -= 5;
+    document.getElementById('outcome_in_frame').innerHTML = canv_out_text; 
     //changes sprite image by 156 pixels
-    srcX = 156; 
-  }
   ctx.drawImage(sprites,srcX,srcY,sprite_w,sprite_h,sprite_x,sprite_y,sprite_w,sprite_h);
   //change the conditions for animation from key press to ballcount.
   if (rightKey == false || leftKey == false) {
     srcX = 10;
   }
 }
+
+//write comments based on ballcount for canvas
+
+function writeComments() {
+    document.getElementById('ball_in_frame').innerHTML = canv_ballcount;
+    var canv_out_text=Innings1.getOutcomeText(canv_ballcount);
+    document.getElementById('outcome_in_frame').innerHTML = canv_out_text;
+    document.getElementById('xpos').innerHTML = sprite_x;
+}
+
+//main animation loop
+
 function loop() {
   clearCanvas();
+  writeComments();
   drawSprite();
 }
 function keyDown(e) {

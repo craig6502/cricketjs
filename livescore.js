@@ -111,7 +111,7 @@ Livescore.prototype.printScores=function(myInnings) {
 		this.displayline(this.columnWidth(name,15)+this.columnWidth(runs,5)+this.columnWidth(BF,5)+this.columnWidth(scoreshots,5)+this.columnWidth(outs,5)+this.columnWidth(dots,5)+this.columnWidth(wideys,5)+this.columnWidth(nbs,5)+this.columnWidth(bbyes,5)+this.columnWidth(lbyes,5));
 		}
 		this.displayline(this.columnWidth("Bowler",20)+this.columnWidth("---Bowler Stats---",25));
-		this.displayline(this.columnWidth("   ",15)+this.columnWidth("O",6)+this.columnWidth("M",5)+this.columnWidth("X",5)+this.columnWidth("R",5)+this.columnWidth("wd",5)+this.columnWidth("nb",5)+this.columnWidth("Total",7)+this.columnWidth("Econ(R/O)",10));
+		this.displayline(this.columnWidth("   ",15)+this.columnWidth("O",6)+this.columnWidth("M",5)+this.columnWidth("X",5)+this.columnWidth("R",5)+this.columnWidth("wd",5)+this.columnWidth("nb",5)+this.columnWidth("Total",7)+this.columnWidth("Econ(Tot/O)",10));
 		for (var bowlers=1;bowlers<numbowlers+1;bowlers++) {
 		var name = myInnings.getBowlerName(bowlers);
 		var bwlruns = this.bowlerscores[bowlers].toString();
@@ -119,7 +119,7 @@ Livescore.prototype.printScores=function(myInnings) {
 		var bnb = this.bowlernoballs[bowlers].toString();
 		var widebowl = this.bowlerwides[bowlers].toString();
 		var bovers = this.bowlerovers[bowlers].toString();
-		var a = this.bowlerscores[bowlers]; //Float is an object, float is primitive
+		var a = this.bowlerscores[bowlers]+this.bowlerwides[bowlers]+this.bowlernoballs[bowlers]; //Float is an object, float is primitive
 		var b = this.bowlerovers[bowlers];
 		var econ = a/b;
 		//var bwlecon = Float.toString(econ);
@@ -222,7 +222,7 @@ Livescore.prototype.tableScores=function(myInnings, innings) {
 			var bnb = this.bowlernoballs[bowlers].toString();
 			var widebowl = this.bowlerwides[bowlers].toString();
 			var bovers = this.bowlerovers[bowlers].toString();
-			var a = this.bowlerscores[bowlers]; //Float is an object, float is primitive
+			var a = this.bowlerscores[bowlers]+this.bowlerwides[bowlers]+this.bowlernoballs[bowlers]; //Float is an object, float is primitive
 			var b = this.bowlerovers[bowlers];
 			var econ = a/b;
 			//var bwlecon = Float.toString(econ);
