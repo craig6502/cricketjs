@@ -137,6 +137,15 @@ Innings.prototype.getBowlerName=function(myBowler) {
   return batsmen[myBowler][0];
 }
 
+//function to return the ballcodes for this ball of current innings
+Innings.prototype.getBallCode=function(myBall) {
+  var batter_id = this.getstrikeBatsman(myBall);
+  var balloutcome = this.batsmen[batter_id][myBall]; 
+  return balloutcome;
+}
+
+//this.batsmen[this.batternum][myBall];
+
 Innings.prototype.getOutcomeText=function(myBall) {
   var bwl_num=this.getBowler(myBall);
   var bat_num=this.getstrikeBatsman(myBall);
@@ -145,6 +154,16 @@ Innings.prototype.getOutcomeText=function(myBall) {
   var output = canv_bwl_name+" bowls to "+canv_bat_name;
   var output = output +","+this.getBallResult(myBall,bat_num);
   return output;
+}
+
+//this function is only used for animation purposes; it doesn't perform any live updating
+//i.e. it just reads from the batsmen data
+Innings.prototype.getBallRuns=function(myBall) {
+  var resultcode = this.getBallCode(myBall);
+  console.log(resultcode);
+  var runs = this.getRuns(resultcode);
+  console.log(runs);
+  return runs;
 }
 
 //====LOADING======
@@ -250,7 +269,7 @@ Innings.prototype.setBallState= function(myBall, myScores) {
     return bowlers[bowlerreq][0];
 
    }
-	 /* get runs (if any) as part of outcome 
+	 /* Translate outcome code into runs (if any)
 	 for now, just process integers not multiple events 
    Runs scored off no balls in regular cricet go on batsman's score
    Runs scored off a 'wicket' e.g. run out in junior cricket are added in same way

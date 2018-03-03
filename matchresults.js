@@ -36,14 +36,17 @@ function Results() {
     srcX = 220, srcY = 0;
     //some useful sprite arrays
     //var runright=[0,85,155,225];
-    var runright=[0,70,140,210,280,350,420,490];
-    var stand = 0;
-    //var runleft=[10,95,155,225,295,370];
-    var runleft=[560,630,700,770,840,910,980,1050];
+    var framelist=[0,70,140,210,280,350,420,490,560,630,700,770,840,910,980,1050];
     var frame=0;
     //set some default conditions
     var canv_ballcount=1;
     var canv_innings=1;
+    var start=0;
+    var mode=0;
+    var lap=0; //lap counter;
+    var inningscount=1;
+    var currentruns=0;
+    var canv_out_text=" ";
     
 
   
@@ -71,14 +74,13 @@ function Results() {
     //match statistics
   }
 
-  //This is called after every time interval set by the start function.
-  //to stop this just call clearInterval(run);
+  //Called by startcounter() after initial statistics processing
+  //processes scores and stats then starts animation
   function run() {
     startcanvas();
     var matchball=0; 
     var innings=1
     var maxballs=Innings1.getMaxBalls();
-    //document.getElementsByTagName('matchcomments').style.overflow='auto';
     while (matchball<maxballs) {
     matchball++;
     commentarytext=Innings1.processOutcome(matchball, myScoresheet);
@@ -109,6 +111,35 @@ function Results() {
       //myScoresheet2.printScores(Innings2);
       myScoresheet2.tableScores(Innings2,innings);
       }
+      //Do it again with animation and delays
+      var matchball=0; 
+      var maxballs=Innings1.getMaxBalls();
+     
+      //slower anonymous loop for ball increment
+      setInterval(nextBall, 1000);
+
+      //try to independently time the lap running
+      //this may be better to run as a sub-loop of 'next', so that next ball doesn't occur until laps are finished
+      
+      setInterval(doLaps, 40);
+      
+
+      //screen updates are still most frequent loop.  20 ms delay is 50 Hz
+      //just do innings 1 for now.  increase to 3 for both.
+      setInterval(function() {
+      if(inningscount<2) {
+        //doLaps();
+        displayLoop();
+        clearCanvas();
+        drawSprite();
+        }
+        //animate3();
+      }, 20)
+
+      //TO DO: pause?  or will main  set interval loop continue indefinitely?
+      document.getElementById('xpos').innerHTML = sprite_x;
+        //drawRunLeft(1);
+      //
       return;
   }
 
@@ -280,25 +311,16 @@ function importBatterData (firsttext) {
    reset = true; //for counter
 }
 
-  // exports
-  // This actually creates a function that our counter can call
-  // you'll see it used below.
-  //
-  // The other functions above cannot be accessed from outside
-  // this function.
   document.getElementById('fileInput').addEventListener('change', readFile, false);
-  //This is to create a function that can be called publically, to start other private function if needed
+  // main external function for external call to this function
   this.start = wait;
 
 function startcanvas() {
   canvas = document.getElementById('canvas');
   ctx = canvas.getContext('2d');
   sprites = new Image();
-  //sprites.src = 'sprites2.png';
   sprites.src = 'cricketer8.png';
-  //setInterval(running, 1000/1000);
-  setInterval(loop, 1000/30); //delay was 1000/30 so 33 ms = 30 Hz
-  //setInterval(render, 1000/60); //50 Hz
+  //setInterval(loop, 1000/2); //delay was 1000/30 so 33 ms = 30 Hz
   document.addEventListener('keydown', keyDown, false);
   document.addEventListener('keyup', keyUp, false);
 }
@@ -307,93 +329,100 @@ function clearCanvas() {
   ctx.clearRect(0,0,canv_width,canv_height);
 }
 
-//TO DO: function to make batters run input number of runs (0=do nothing)
-//sprites for bowler, 2 x batsmen, wickets etc (tiles to make picture?)
-function drawRunning() {
+//ANIMATION LOOP FUNCTIONS
 
+function displayLoop() {
+  document.getElementById('run_count').innerHTML = lap;
+  document.getElementById('runs_this_ball').innerHTML = currentruns;
+  document.getElementById('anim_frame').innerHTML = frame;
+  document.getElementById('ball_in_frame').innerHTML = canv_ballcount;
+  document.getElementById('outcome_in_frame').innerHTML = canv_out_text; 
+  document.getElementById('xpos').innerHTML = sprite_x;
+  //document.getElementsByTagName('matchcomments').style.overflow='auto';
+     
 }
 
-//if the right key is pressed it changes the sprite image by 83 pixels
-
-function drawSprite() {
-  var stride=15;
-  if (rightKey) {
-    canv_ballcount++;
-    if (canv_ballcount>Innings1.getMaxBalls()) {
-      canv_ballcount=Innings1.getMaxBalls();
-    }
-    running();
-    sprite_x += stride;
-    if (sprite_x>canv_width-50) {
-      sprite_x=canv_width-50;
-    }
-    //change image position in sprite sheet
-    //srcX = 83;
-    srcX=runright[frame];
-    
-  } else if (leftKey) {
-    
-    canv_ballcount--;
-    if (canv_ballcount<1) {
-          canv_ballcount=1;
-      }
-    running();
-    sprite_x -= stride;
-    if (sprite_x<0) {
-        sprite_x=0;
-      }
-      //change image position in sprite sheet proportionate to runv
-      //srcX = 156; 
-      //srcX=runleft[offset];
-      //srcX=runleft[frame];
-      srcX=runleft[frame];
-    }
-    document.getElementById('ball_in_frame').innerHTML = canv_ballcount;
-    var canv_out_text=Innings1.getOutcomeText(canv_ballcount);
-    document.getElementById('outcome_in_frame').innerHTML = canv_out_text; 
-    
-    //draw here cf render separate
-    ctx.drawImage(sprites,srcX,srcY,sprite_w,sprite_h,sprite_x,sprite_y,sprite_w,sprite_h);
-    //the default image position when nothing is pressed.  Not needed for now but could be for pause
-  
-  //this was OR??
-  if (rightKey == false && leftKey == false) {
-    //srcX = 10;
-    //srcX=stand;
-    //clearInterval(running);
+function nextBall() {
+  //reset laps to do for animation
+  //if current laps are finished advance the ball for animation.
+  if (currentruns==0) {
+      canv_ballcount++;
+  if (canv_ballcount>120) { //Innings1.getMaxBalls()
+    canv_ballcount=0;
+    inningscount++;
+  }
+  if (inningscount==1) {
+     console.log(canv_out_text);
+     canv_out_text=Innings1.getOutcomeText(canv_ballcount);
+     currentruns=Innings1.getBallRuns(canv_ballcount);
+  }
+  else {
+     canv_out_text=Innings2.getOutcomeText(canv_ballcount);
+     currentruns=Innings2.getBallRuns(canv_ballcount);
   }
 }
-
-//write comments based on ballcount for canvas
-
-function writeComments() {
-    document.getElementById('ball_in_frame').innerHTML = canv_ballcount;
-    var canv_out_text=Innings1.getOutcomeText(canv_ballcount);
-    document.getElementById('outcome_in_frame').innerHTML = canv_out_text;
-    document.getElementById('xpos').innerHTML = sprite_x;
+  //run laps as a sub-cycle of each ball, not async
+  //or get laps cycle to report back and then go to next ball.
 }
 
-//animation loop
-//don't draw with this: just grab the frame when you need it?
+//advance frameCountforRunning
+function advanceFrameCount() {
+  frame++;
+  if (frame==8) {
+         frame=0;
+  } 
+  //moving right
+  if (mode==1) {
+      srcX=framelist[frame];
+  }
+   else {
+        srcX=framelist[frame+8];
+       }
+  }
 
-function running() {
-   frame++;
-   if (frame==8) {
-    frame=0;
-   }
-   document.getElementById('anim_frame').innerHTML = frame;
+//make position update and character frame conditional on still running laps
+//to make continuous, call position X directly
+//this will loop for as many runs as needed, then reset lap counter
+//TO DO: change appearance of batsmen if no runs etc
+function doLaps() { 
+    if (lap<currentruns) {
+      positionX();
+      advanceFrameCount();
+    }
+    else {
+      lap=0;
+      currentruns=0;
+    }
 }
 
-function render() {
+//setup a cycling run for the runner
+function positionX() {
+    var temp = sprite_x;
+    var amplitude=(canv_width/4)-50;
+    var centre = 150; //canv_width/2;
+    var step=0.10;
+    sprite_x = amplitude * Math.sin( start ) + centre;
+    var storemode=mode;
+    if (temp>sprite_x) {
+      mode=0;
+    }
+    else {mode=1;}
+    start += step; //basic stride of 0.05 is ok but make it bigger
+    //return 1 if at end of lap i.e. mode of direction changes
+    if (storemode!=mode && start>2*step) {
+      lap++;
+    }
+  }
+
+function drawSprite() {
   ctx.drawImage(sprites,srcX,srcY,sprite_w,sprite_h,sprite_x,sprite_y,sprite_w,sprite_h);
 }
 
 //keycheck loop
 function loop() {
-  clearCanvas();
-  writeComments();
-  drawSprite();
+ //no functions for now
 }
+
 function keyDown(e) {
   if (e.keyCode == 39) rightKey = true;
   else if (e.keyCode == 37) leftKey = true;
