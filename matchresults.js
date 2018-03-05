@@ -42,6 +42,7 @@ function Results() {
     //some useful sprite arrays
     //var runright=[0,85,155,225];
     var batter_framelist=[0,70,140,210,280,350,420,490,560,630,700,770,840,910,980,1050];
+    var bowler_framelist=[560,630,700,770,840,910,980,1050];
     var umpire_framelist=[0,70,140,210]; //normal, wide
     var batter_frame=0;
     var umpire_frame=0;
