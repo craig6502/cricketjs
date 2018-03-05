@@ -24,7 +24,7 @@ function Results() {
   var myScoresheet = new Livescore();
   var myScoresheet2 = new Livescore();
   //canvas variables
-  var canvas, ctx, sprites,
+  var canvas, ctx, batter_sprite,
     canv_width = 600,
     canv_height = 150,
     rightKey = false,
@@ -33,11 +33,18 @@ function Results() {
     downKey = false,
     //base position srX was 10 but now 0
     sprite_x = (canv_width / 2) - 25, sprite_y = canv_height - 85, sprite_w = 65, sprite_h = 85,
-    srcX = 220, srcY = 0;
+     ump_sprite_x=(canv_width / 2)+10,
+     ump_sprite_y=sprite_y, //umpire starting xy position
+     ump_srcX=1120,
+     ump_srcY=0,
+     srcX=0, 
+     srcY=0; //batter frame starting position - NOT NEEDED?
     //some useful sprite arrays
     //var runright=[0,85,155,225];
-    var framelist=[0,70,140,210,280,350,420,490,560,630,700,770,840,910,980,1050];
-    var frame=0;
+    var batter_framelist=[0,70,140,210,280,350,420,490,560,630,700,770,840,910,980,1050];
+    var umpire_framelist=[0,70,140,210]; //normal, wide
+    var batter_frame=0;
+    var umpire_frame=0;
     //set some default conditions
     var canv_ballcount=1;
     var canv_innings=1;
@@ -46,6 +53,7 @@ function Results() {
     var lap=0; //lap counter;
     var inningscount=1;
     var currentruns=0;
+    var umpirecode="default";
     var canv_out_text=" ";
     
 
@@ -318,8 +326,10 @@ function importBatterData (firsttext) {
 function startcanvas() {
   canvas = document.getElementById('canvas');
   ctx = canvas.getContext('2d');
-  sprites = new Image();
-  sprites.src = 'cricketer8.png';
+  batter_sprite = new Image();
+  umpire_sprite = new Image();
+  umpire_sprite.src = 'umpire.png';
+  batter_sprite.src = 'batter.png';
   //setInterval(loop, 1000/2); //delay was 1000/30 so 33 ms = 30 Hz
   document.addEventListener('keydown', keyDown, false);
   document.addEventListener('keyup', keyUp, false);
@@ -334,7 +344,7 @@ function clearCanvas() {
 function displayLoop() {
   document.getElementById('run_count').innerHTML = lap;
   document.getElementById('runs_this_ball').innerHTML = currentruns;
-  document.getElementById('anim_frame').innerHTML = frame;
+  document.getElementById('anim_frame').innerHTML = batter_frame;
   document.getElementById('ball_in_frame').innerHTML = canv_ballcount;
   document.getElementById('outcome_in_frame').innerHTML = canv_out_text; 
   document.getElementById('xpos').innerHTML = sprite_x;
@@ -342,7 +352,27 @@ function displayLoop() {
      
 }
 
+function getUmpireFrame(signal){
+  if (signal.includes("w")) {
+      //umpirecode="wide";
+      return umpire_framelist[1];
+     }
+     //out
+     if (signal.includes("x")) {
+      //umpirecode="noball";
+      return umpire_framelist[2];
+     }
+     //nb
+     if (signal.includes("n")) {
+      //umpirecode="noball";
+      return umpire_framelist[3];
+     }
+     return umpire_framelist[0];
+}
+
 function nextBall() {
+  umpirecode="default"; //reset umpire
+  ump_srcX=umpire_framelist[0]; //set umpire char frame
   //reset laps to do for animation
   //if current laps are finished advance the ball for animation.
   if (currentruns==0) {
@@ -355,28 +385,30 @@ function nextBall() {
      console.log(canv_out_text);
      canv_out_text=Innings1.getOutcomeText(canv_ballcount);
      currentruns=Innings1.getBallRuns(canv_ballcount);
+     var signalcode=Innings1.getBallCode(canv_ballcount);
+     ump_srcX=getUmpireFrame(signalcode);
   }
   else {
      canv_out_text=Innings2.getOutcomeText(canv_ballcount);
      currentruns=Innings2.getBallRuns(canv_ballcount);
+     var signalcode=Innings2.getBallCode(canv_ballcount);
+     ump_srcX=getUmpireFrame(signalcode);
+     }
+    }
   }
-}
-  //run laps as a sub-cycle of each ball, not async
-  //or get laps cycle to report back and then go to next ball.
-}
 
 //advance frameCountforRunning
 function advanceFrameCount() {
-  frame++;
-  if (frame==8) {
-         frame=0;
+  batter_frame++;
+  if (batter_frame==8) {
+         batter_frame=0;
   } 
   //moving right
   if (mode==1) {
-      srcX=framelist[frame];
+      srcX=batter_framelist[batter_frame];
   }
    else {
-        srcX=framelist[frame+8];
+        srcX=batter_framelist[batter_frame+8];
        }
   }
 
@@ -415,7 +447,9 @@ function positionX() {
   }
 
 function drawSprite() {
-  ctx.drawImage(sprites,srcX,srcY,sprite_w,sprite_h,sprite_x,sprite_y,sprite_w,sprite_h);
+  ctx.drawImage(batter_sprite,srcX,srcY,sprite_w,sprite_h,sprite_x,sprite_y,sprite_w,sprite_h);
+  ctx.drawImage(umpire_sprite,ump_srcX,ump_srcY,sprite_w,sprite_h,ump_sprite_x,ump_sprite_y,sprite_w,sprite_h);
+  console.log("sprite Y pos:",sprite_y);
 }
 
 //keycheck loop
