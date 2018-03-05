@@ -55,6 +55,7 @@ function Results() {
     var currentruns=0;
     var umpirecode="default";
     var canv_out_text=" ";
+    var battertext="default";
     
 
   
@@ -135,7 +136,7 @@ function Results() {
       //screen updates are still most frequent loop.  20 ms delay is 50 Hz
       //just do innings 1 for now.  increase to 3 for both.
       setInterval(function() {
-      if(inningscount<2) {
+      if(inningscount<3) {
         //doLaps();
         displayLoop();
         clearCanvas();
@@ -328,6 +329,7 @@ function startcanvas() {
   ctx = canvas.getContext('2d');
   batter_sprite = new Image();
   umpire_sprite = new Image();
+  ctx.font = "10px Arial";
   umpire_sprite.src = 'umpire.png';
   batter_sprite.src = 'batter.png';
   //setInterval(loop, 1000/2); //delay was 1000/30 so 33 ms = 30 Hz
@@ -387,12 +389,14 @@ function nextBall() {
      currentruns=Innings1.getBallRuns(canv_ballcount);
      var signalcode=Innings1.getBallCode(canv_ballcount);
      ump_srcX=getUmpireFrame(signalcode);
+     battertext=Innings1.getBatterLabel(canv_ballcount);
   }
   else {
      canv_out_text=Innings2.getOutcomeText(canv_ballcount);
      currentruns=Innings2.getBallRuns(canv_ballcount);
      var signalcode=Innings2.getBallCode(canv_ballcount);
      ump_srcX=getUmpireFrame(signalcode);
+     battertext=Innings2.getBatterLabel(canv_ballcount);
      }
     }
   }
@@ -449,7 +453,7 @@ function positionX() {
 function drawSprite() {
   ctx.drawImage(batter_sprite,srcX,srcY,sprite_w,sprite_h,sprite_x,sprite_y,sprite_w,sprite_h);
   ctx.drawImage(umpire_sprite,ump_srcX,ump_srcY,sprite_w,sprite_h,ump_sprite_x,ump_sprite_y,sprite_w,sprite_h);
-  console.log("sprite Y pos:",sprite_y);
+  ctx.fillText(battertext,sprite_x+10,sprite_y-10);
 }
 
 //keycheck loop

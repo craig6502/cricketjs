@@ -166,6 +166,11 @@ Innings.prototype.getBallRuns=function(myBall) {
   return runs;
 }
 
+Innings.prototype.getBatterLabel=function(myBall) {
+  var bat_num=this.getstrikeBatsman(myBall);
+  return this.getBatterName(bat_num);
+}
+
 //====LOADING======
 	
 //1) batsmen
