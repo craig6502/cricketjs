@@ -113,7 +113,7 @@ Livescore.prototype.printScores=function(myInnings) {
 		this.displayline(this.columnWidth("Bowler",20)+this.columnWidth("---Bowler Stats---",25));
 		this.displayline(this.columnWidth("   ",15)+this.columnWidth("O",6)+this.columnWidth("M",5)+this.columnWidth("X",5)+this.columnWidth("R",5)+this.columnWidth("wd",5)+this.columnWidth("nb",5)+this.columnWidth("Total",7)+this.columnWidth("Econ(Tot/O)",10));
 		for (var bowlers=1;bowlers<numbowlers+1;bowlers++) {
-		var name = myInnings.getBowlerName(bowlers);
+		var name = myInnings.getBowlerNameFromId(bowlers);
 		var bwlruns = this.bowlerscores[bowlers].toString();
 		var bwlwicks = this.bowlerwickets[bowlers].toString();
 		var bnb = this.bowlernoballs[bowlers].toString();
@@ -216,7 +216,7 @@ Livescore.prototype.tableScores=function(myInnings, innings) {
 		t2rows[0]=["<b>Bowlers</b>"]; // ," ","---Bowler Stats---"
 		t2rows[1]=["   ","O","M","X","R","wd","nb","Total","Econ(R/O)"];
 		for (var bowlers=1;bowlers<numbowlers+1;bowlers++) {
-			var name = myInnings.getBowlerName(bowlers);
+			var name = myInnings.getBowlerNameFromId(bowlers);
 			var bwlruns = this.bowlerscores[bowlers].toString();
 			var bwlwicks = this.bowlerwickets[bowlers].toString();
 			var bnb = this.bowlernoballs[bowlers].toString();
@@ -303,7 +303,7 @@ Livescore.prototype.addWicket = function(batter,bowler) {
 Livescore.prototype.addWide = function(batter,bowler,value) {
 	//add just a 'count' to batter wides (dot ball analysis)
 	this.batterwides[batter]=this.batterwides[batter]+1;
-	//add vaue of wide to bowler/total
+	//add value of wide to bowler/total
 	this.bowlerwides[bowler]=this.bowlerwides[bowler]+value;
 	this.totalwides=this.totalwides+value;
 	this.maiden=false;
@@ -321,7 +321,9 @@ Livescore.prototype.addNoBall = function(batter,bowler) {
 }
 
 Livescore.prototype.addBye = function(batter,value) {
-	this.batterbyes[batter]=this.batterbyes[batter]+value;
+	//just add a count to the batter's number of byes faced
+	this.batterbyes[batter]=this.batterbyes[batter]+1;
+	//add value of byes to total score
 	this.totalbyes=this.totalbyes+value;
 }
 

@@ -33,30 +33,41 @@ function Results() {
     downKey = false,
     //base position srX was 10 but now 0
     sprite_x = (canv_width / 2) - 25, sprite_y = canv_height - 85, sprite_w = 65, sprite_h = 85,
+     bwl_srcX=0,
+     bwl_srcY=0,
+     bwl_sprite_x=canv_width*0.9; //make this 90% of width
+     bwl_sprite_y=sprite_y,
      ump_sprite_x=(canv_width / 2)+10,
      ump_sprite_y=sprite_y, //umpire starting xy position
-     ump_srcX=1120,
+     ump_srcX=0,
      ump_srcY=0,
-     srcX=0, 
+     srcX=0,
      srcY=0; //batter frame starting position - NOT NEEDED?
-    //some useful sprite arrays
-    //var runright=[0,85,155,225];
+    //----define individual variables from here
     var batter_framelist=[0,70,140,210,280,350,420,490,560,630,700,770,840,910,980,1050];
     var bowler_framelist=[560,630,700,770,840,910,980,1050];
     var umpire_framelist=[0,70,140,210]; //normal, wide
     var batter_frame=0;
+    var bowler_frame=0;
     var umpire_frame=0;
     //set some default conditions
     var canv_ballcount=1;
     var canv_innings=1;
     var start=0;
+    var bwl_start=0; //counter for sine function
     var mode=0;
+    var bwl_mode=0;
     var lap=0; //lap counter;
     var inningscount=1;
     var currentruns=0;
     var umpirecode="default";
     var canv_out_text=" ";
     var battertext="default";
+    var bowlertext="default";
+    var bowlerfinished=0;//unused
+    var bowlerball=0;
+    var signalcode="default";
+  
     
 
   
@@ -87,20 +98,19 @@ function Results() {
   //Called by startcounter() after initial statistics processing
   //processes scores and stats then starts animation
   function run() {
-    startcanvas();
+    
     var matchball=0; 
     var innings=1
     var maxballs=Innings1.getMaxBalls();
     while (matchball<maxballs) {
-    matchball++;
-    commentarytext=Innings1.processOutcome(matchball, myScoresheet);
-    updateDisplay(matchball,commentarytext,innings);
-   }
+      matchball++;
+      //allow just text output for now
+     commentarytext=Innings1.processOutcome(matchball, myScoresheet);
+      //updateDisplay(matchball,commentarytext,innings);
+    }
     //process outcome as per Java code in Cricket10.java in playgame method
     //while loop for innings 1
     if (matchball==maxballs) {
-      //clearInterval(run);
-      //cleanup by removing event listener
       //myScoresheet.printScores(Innings1);
       myScoresheet.tableScores(Innings1,innings);
       }
@@ -112,16 +122,15 @@ function Results() {
       while (matchball<maxballs) {
         matchball++;
         commentarytext=Innings2.processOutcome(matchball, myScoresheet2);
-        updateDisplay(matchball,commentarytext,innings);
+        //updateDisplay(matchball,commentarytext,innings);
       }
       if (matchball==maxballs) {
-      //clearInterval(run);
-      //cleanup by removing event listener
-      //document.getElementById('fileInput').removeEventListener('change', readFile, false);
-      //myScoresheet2.printScores(Innings2);
       myScoresheet2.tableScores(Innings2,innings);
       }
       //Do it again with animation and delays
+      var animationFlag=0;
+      if (animationFlag==1) {
+      startcanvas();
       var matchball=0; 
       var maxballs=Innings1.getMaxBalls();
      
@@ -131,11 +140,12 @@ function Results() {
       //try to independently time the lap running
       //this may be better to run as a sub-loop of 'next', so that next ball doesn't occur until laps are finished
       
-      setInterval(doLaps, 40);
+      setInterval(doLaps, 80);
+      setInterval(doBowl, 80);
       
 
       //screen updates are still most frequent loop.  20 ms delay is 50 Hz
-      //just do innings 1 for now.  increase to 3 for both.
+      //<3=both innings
       setInterval(function() {
       if(inningscount<3) {
         //doLaps();
@@ -148,6 +158,7 @@ function Results() {
 
       //TO DO: pause?  or will main  set interval loop continue indefinitely?
       document.getElementById('xpos').innerHTML = sprite_x;
+    }
         //drawRunLeft(1);
       //
       return;
@@ -241,6 +252,7 @@ function InningsData(firsttext) {
     var meta1 = line1.split(',');
     battingteamname = meta1[0];
     numbatters = parseInt(meta1[3],10);
+    console.log("numbatters:",numbatters);
     for (var x=1; x<numbatters+1; x++) {
       //to do - make sure rows aren't exceeded.
       batterdata[x] = lines[x+1].split(','); //comma delimiter
@@ -248,13 +260,17 @@ function InningsData(firsttext) {
     maxballs = batterdata[1].length-1;
     //
     var line2 = lines[numbatters+2];
+    console.log ("line2:",line2);
     var meta2 = line2.split(',');
+    console.log ("Meta2:",meta2)
     bowlingteamname = meta2[0];
     numbowlers = parseInt(meta2[3],10);
     var bowlingLineStart = numbatters+2;
+    console.log("bowlinglineStart:",bowlingLineStart);
     for (x=1; x<numbowlers+1; x++) {
       //to do - make sure rows aren't exceeded.
       bowlerdata[x] = lines[x+bowlingLineStart].split(','); //comma delimiter
+      console.log("bowler:",x,bowlerdata[x]);
     }
     
     //update the innings data
@@ -269,25 +285,33 @@ function InningsData(firsttext) {
     //INNINGS 2
     var battingLineStart=numbatters+numbowlers+3; //1st innings offset
     var line3 = lines[battingLineStart];
+    console.log ("line3:",line3);
+    console.log ("line3start:",battingLineStart);
     meta3 = line3.split(',');
+    console.log ("meta3:",meta3);
     var battingteam2name = meta3[0];
     var batterdata2 = new Array();
     var numbatters2 = parseInt(meta3[3],10);
     for (x=1; x<numbatters2+1; x++) {
       //to do - make sure rows aren't exceeded.
       batterdata2[x] = lines[x+battingLineStart].split(','); //comma delimiter
+      console.log ("batter:",x,batterdata2[x]);
     }
     maxballs2 = batterdata2[1].length-1;
     //
-    line4 = lines[battingLineStart+numbatters+2];
+    line4 = lines[battingLineStart+numbatters2+1]; //change this to +1
+    console.log ("line4start:",battingLineStart+numbatters2+1);
+    console.log ("line4:",line4);
     meta4 = line4.split(',');
+    console.log ("meta4:",meta4);
     var bowlingteam2name = meta4[0];
     var numbowlers2 = parseInt(meta4[3],10);
-    var bowlingLineStart = battingLineStart+numbatters+2;
+    var bowlingLineStart = battingLineStart+numbatters2+1;
     var bowlerdata2 = new Array();
-    for (x=1; x<numbowlers+1; x++) {
+    for (x=1; x<numbowlers2+1; x++) {
       //to do - make sure rows aren't exceeded.
       bowlerdata2[x] = lines[x+bowlingLineStart].split(','); //comma delimiter
+      console.log ("bowler:",x,bowlerdata2[x]);
     }
     //update the second innings data
     Innings2.setMaxBalls(maxballs2);
@@ -330,9 +354,12 @@ function startcanvas() {
   ctx = canvas.getContext('2d');
   batter_sprite = new Image();
   umpire_sprite = new Image();
+  bowler_sprite = new Image();
   ctx.font = "10px Arial";
   umpire_sprite.src = 'umpire.png';
   batter_sprite.src = 'batter.png';
+  bowler_sprite.src = 'bowler.png';
+
   //setInterval(loop, 1000/2); //delay was 1000/30 so 33 ms = 30 Hz
   document.addEventListener('keydown', keyDown, false);
   document.addEventListener('keyup', keyUp, false);
@@ -376,10 +403,13 @@ function getUmpireFrame(signal){
 function nextBall() {
   umpirecode="default"; //reset umpire
   ump_srcX=umpire_framelist[0]; //set umpire char frame
+  //reset bowler start
   //reset laps to do for animation
-  //if current laps are finished advance the ball for animation.
+  //if current laps are finished, and bowler finished advance the ball for animation.
   if (currentruns==0) {
       canv_ballcount++;
+      bwl_sprite_x=550;
+    }
   if (canv_ballcount>120) { //Innings1.getMaxBalls()
     canv_ballcount=0;
     inningscount++;
@@ -388,22 +418,33 @@ function nextBall() {
      console.log(canv_out_text);
      canv_out_text=Innings1.getOutcomeText(canv_ballcount);
      currentruns=Innings1.getBallRuns(canv_ballcount);
-     var signalcode=Innings1.getBallCode(canv_ballcount);
-     ump_srcX=getUmpireFrame(signalcode);
      battertext=Innings1.getBatterLabel(canv_ballcount);
+     bowlertext=Innings1.getBowlerLabel(canv_ballcount);
+     signalcode=Innings1.getBallCode(canv_ballcount);
   }
   else {
      canv_out_text=Innings2.getOutcomeText(canv_ballcount);
      currentruns=Innings2.getBallRuns(canv_ballcount);
-     var signalcode=Innings2.getBallCode(canv_ballcount);
-     ump_srcX=getUmpireFrame(signalcode);
      battertext=Innings2.getBatterLabel(canv_ballcount);
+     bowlertext=Innings2.getBowlerLabel(canv_ballcount);
+     signalcode=Innings2.getBallCode(canv_ballcount);
      }
     }
-  }
 
-//advance frameCountforRunning
-function advanceFrameCount() {
+
+//advance frameCount for Bowler Running
+function advanceBowlerFrames() {
+  if (bwl_sprite_x>300) {
+      bowler_frame++;
+  if (bowler_frame==8) {
+      bowler_frame=0;
+  } 
+  bwl_srcX=bowler_framelist[bowler_frame];
+  }
+ }
+
+//advance frameCount for Batsman Running
+function advanceBatterFrames() {
   batter_frame++;
   if (batter_frame==8) {
          batter_frame=0;
@@ -417,30 +458,75 @@ function advanceFrameCount() {
        }
   }
 
+//
+function advanceUmpireFrames() {
+
+   ump_srcX=getUmpireFrame(signalcode);
+   setTimeout(function() {
+      ump_srcX=umpire_framelist[0];
+      }, 200)
+}
+ 
+
+//bowler run up for every ball
+function doBowl() {
+  if (bwl_sprite_x>300) {
+    moveBowler_xpos();
+    advanceBowlerFrames();
+  }
+  else {
+     advanceUmpireFrames();
+  }
+}
+
 //make position update and character frame conditional on still running laps
 //to make continuous, call position X directly
 //this will loop for as many runs as needed, then reset lap counter
 //TO DO: change appearance of batsmen if no runs etc
 function doLaps() { 
-    if (lap<currentruns) {
-      positionX();
-      advanceFrameCount();
+
+    if (bwl_sprite_x<=300) {
+      moveBatter_xpos();
+      advanceBatterFrames();
     }
     else {
-      lap=0;
-      currentruns=0;
-    }
-}
+      
+      }
+  }
 
-//setup a cycling run for the runner
-function positionX() {
+//setup a cycling run for the bowler
+//better: setup acceleration and deceleration phases
+function moveBowler_xpos() {
+
+    //DO: reset strike batsman
+    start=0;
+    sprite_x=0;
+    srcX=batter_framelist[0];
+    //
+    var bwltemp = bwl_sprite_x;
+    var bwlamplitude=(canv_width/2)-50;
+    var bwlcentre = 550; //canv_width/2;
+    var bwl_end=300;
+    var bwlstep=8;
+    //bwl_sprite_x = bwlamplitude * Math.sin( bwl_start ) + bwlcentre;
+    bwl_sprite_x -= bwlstep; 
+    //bwl_sprite_x -= bwlstep; //basic stride of 0.05 is ok but make it bigger
+    console.log("bowler x pos:",bwl_sprite_x,"finished?",bowlerball,"end test:",bwl_end);
+    //return 1 if at end of run i.e. mode of direction changes
+  }
+
+//setup a cycling run for the batter
+//Takes radians.  If you want the batter to run up and back in a second that's PI degrees so 3.14 radians per second.
+//If the interval timer is set to 40 Hz (25ms repeat)
+
+function moveBatter_xpos() {
     var temp = sprite_x;
     var amplitude=(canv_width/4)-50;
     var centre = 150; //canv_width/2;
-    var step=0.10;
-    sprite_x = amplitude * Math.sin( start ) + centre;
+    var step=0.30;
+    sprite_x = amplitude * Math.sin( start ) + centre; //radians; Math.PI / 2
     var storemode=mode;
-    if (temp>sprite_x) {
+    if (Math.sin(start)<0 || start>(Math.PI/2)) {
       mode=0;
     }
     else {mode=1;}
@@ -454,7 +540,11 @@ function positionX() {
 function drawSprite() {
   ctx.drawImage(batter_sprite,srcX,srcY,sprite_w,sprite_h,sprite_x,sprite_y,sprite_w,sprite_h);
   ctx.drawImage(umpire_sprite,ump_srcX,ump_srcY,sprite_w,sprite_h,ump_sprite_x,ump_sprite_y,sprite_w,sprite_h);
+  //bwl_sprite_x
+  ctx.drawImage(bowler_sprite,bwl_srcX,bwl_srcY,sprite_w,sprite_h,bwl_sprite_x,bwl_sprite_y,sprite_w,sprite_h);
+  //ctx.drawImage(bowler_sprite,bwl_srcX,bwl_srcY,sprite_w,sprite_h,550,bwl_sprite_y,sprite_w,sprite_h);
   ctx.fillText(battertext,sprite_x+10,sprite_y-10);
+  ctx.fillText(bowlertext,bwl_sprite_x+10,bwl_sprite_y-10);
 }
 
 //keycheck loop

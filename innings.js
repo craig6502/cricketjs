@@ -130,11 +130,11 @@ Innings.prototype.getBowlersGame=function() {
 }
 
 Innings.prototype.getBatterName=function(myBatter) {
-  return batsmen[myBatter][0];
+  return this.batsmen[myBatter][0];
 }
 
 Innings.prototype.getBowlerName=function(myBowler) {
-  return batsmen[myBowler][0];
+  return this.bowlers[myBowler][0];
 }
 
 //function to return the ballcodes for this ball of current innings
@@ -147,9 +147,9 @@ Innings.prototype.getBallCode=function(myBall) {
 //this.batsmen[this.batternum][myBall];
 
 Innings.prototype.getOutcomeText=function(myBall) {
-  var bwl_num=this.getBowler(myBall);
+  var bwlr_num=this.getBowler(myBall);
   var bat_num=this.getstrikeBatsman(myBall);
-  var canv_bwl_name=this.getBowlerName(bwl_num);
+  var canv_bwl_name=this.getBowlerName(bwlr_num);
   var canv_bat_name=this.getBatterName(bat_num);
   var output = canv_bwl_name+" bowls to "+canv_bat_name;
   var output = output +","+this.getBallResult(myBall,bat_num);
@@ -170,6 +170,13 @@ Innings.prototype.getBatterLabel=function(myBall) {
   var bat_num=this.getstrikeBatsman(myBall);
   return this.getBatterName(bat_num);
 }
+
+Innings.prototype.getBowlerLabel=function(myBall) {
+  var bwlr_num=this.getBowler(myBall);
+  return this.getBowlerName(bwlr_num);
+}
+
+
 
 //====LOADING======
 	
@@ -193,7 +200,7 @@ this.setBallState(myBall,myScores);
       if (this.wicket==1) {
         myScores.addWicket(this.batternum, this.bowlernum);
       }
-      //this is count of wide balls
+      //this is count of wide balls for batter, value of wides for bowler
       if (this.wide!=0) {
         myScores.addWide(this.batternum, this.bowlernum, this.wide);
       }
@@ -205,8 +212,7 @@ this.setBallState(myBall,myScores);
       }
       //this is a count of number of bye balls
       if (this.bye!=0) {
-        //myScores.addBye(this.batternum, this.bye);
-        myScores.addBye(this.batternum, 1);
+        myScores.addBye(this.batternum, this.bye);
       }
       //this is count of leg bye balls
       if (this.legbye!=0) {
@@ -223,7 +229,7 @@ this.setBallState(myBall,myScores);
     //function setBallState(myBall, myScores) {
 
 Innings.prototype.getBallOutcome=function(myBall) {
-  var myText = this.getBatterName(myBall)+" facing "+this.getBowlerName(myBall);
+  var myText = this.getBatterName(myBall)+" facing "+this.getBowlerLabel(myBall);
   return myText;
 }
 
@@ -269,7 +275,7 @@ Innings.prototype.setBallState= function(myBall, myScores) {
 	 }
 
    /* return batter name for given batsman */
- Innings.prototype.getBowlerName =function(bowlerreq) {
+ Innings.prototype.getBowlerNameFromId =function(bowlerreq) {
     var bowlers = this.getBowlersGame();
     return bowlers[bowlerreq][0];
 
@@ -302,6 +308,7 @@ Innings.prototype.setBallState= function(myBall, myScores) {
       case "4nb": return 4;
 	 		case "5": return 5;
 	 		case "5x": return 5;
+      case "6": return 6;
 	 		default: return 0;
 	 	}
 	 }
@@ -355,10 +362,10 @@ Innings.prototype.setBallState= function(myBall, myScores) {
     switch (myOutcome) {
       case "w": return 1;
       case "1w": return 1;
-      case "2w": return 1;
-      case "3w": return 1;
-      case "4w": return 1;
-      case "5w": return 1;
+      case "2w": return 2;
+      case "3w": return 3;
+      case "4w": return 4;
+      case "5w": return 5;
       default: return 0;
     }
    }
