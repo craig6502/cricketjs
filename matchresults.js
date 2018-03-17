@@ -106,7 +106,8 @@ function Results() {
       matchball++;
       //allow just text output for now
      commentarytext=Innings1.processOutcome(matchball, myScoresheet);
-      //updateDisplay(matchball,commentarytext,innings);
+      //update display is for ball by ball commentary
+      updateDisplay(matchball,commentarytext,innings);
     }
     //process outcome as per Java code in Cricket10.java in playgame method
     //while loop for innings 1
@@ -122,13 +123,15 @@ function Results() {
       while (matchball<maxballs) {
         matchball++;
         commentarytext=Innings2.processOutcome(matchball, myScoresheet2);
-        //updateDisplay(matchball,commentarytext,innings);
+        //update display is for animation
+        updateDisplay(matchball,commentarytext,innings);
       }
       if (matchball==maxballs) {
       myScoresheet2.tableScores(Innings2,innings);
       }
       //Do it again with animation and delays
-      var animationFlag=0;
+      //set this to 1 to start animatin
+      var animationFlag=1;
       if (animationFlag==1) {
       startcanvas();
       var matchball=0; 

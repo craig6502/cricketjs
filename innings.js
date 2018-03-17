@@ -1,7 +1,13 @@
 /* javascript version of innings.java 
-This uses prototyping so that the instance variables and methods can be treated similar to classes in java 
-If prototyping is not used, then creating a new Innings() will simply clone the function object and values
 
+The purpose of this function/'class' is to interpret the data file and set
+current ball state for the innings, for later use.
+
+The cumulative effect of each decoded event is evaluated separately, in the livescore.js script/class.
+
+This uses prototyping so that the instance variables and methods can be treated similar to classes in Java 
+If prototyping is not used, then creating a new Innings() will simply clone the function object and values
+(i.e. copies by reference not value)
 */
 
  var Innings = function() {
